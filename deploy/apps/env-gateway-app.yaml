@@ -1,0 +1,30 @@
+# ArgoCD Application for Envoy Gateway
+# This manifest tells ArgoCD to sync Envoy Gateway resources from the Helm chart.
+# Envoy Gateway version: v1.2.0
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: env-gateway
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: env-gateway
+    app.kubernetes.io/part-of: k8s-envoy-gateway
+    app.kubernetes.io/managed-by: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://envoyproxy.github.io/gateway-helm
+    targetRevision: v1.2.0
+    chart: gateway
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: envoy-gateway
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true

@@ -1,0 +1,53 @@
+# ArgoCD base helm values for the demo
+# ArgoCD version: v2.11.0 (pin to ensure reproducibility)
+
+# Disable default ApplicationSet (not needed for this demo)
+applicationSet:
+  enabled: false
+
+# Disable Dex (we use GitHub auth in a real setup, but not required for the demo)
+dex:
+  enabled: false
+
+# Enable config management plugins (not strictly needed for basic demo)
+configManagementPlugins: |
+
+# Disable RBAC for simplicity (demo-only; for production, configure RBAC properly)
+rbac:
+  defaultPolicy: 'role:readonly'
+  scopes:
+    - 'group:*'
+
+# Disable notifications (not needed for this demo)
+notifications:
+  enabled: false
+
+# Disable repo server metrics (not needed for this demo)
+repoServer:
+  metrics:
+    enabled: false
+
+# Disable application controller metrics (not needed for this demo)
+applicationController:
+  metrics:
+    enabled: false
+
+# Disable grafana (not needed for this demo)
+grafana:
+  enabled: false
+
+# Disable prometheus (not needed for this demo)
+prometheus:
+  enabled: false
+
+# Disable server metrics (not needed for this demo)
+server:
+  metrics:
+    enabled: false
+  # Gateway API HTTPRoute for ArgoCD dashboard (set in httproute-values.yaml)
+  httproute:
+    enabled: false
+
+# Network policy (demo-only; disable for simplicity)
+networkPolicy:
+  enabled: false

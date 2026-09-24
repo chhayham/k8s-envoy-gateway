@@ -1,0 +1,109 @@
+# Gateway API CRDs v1.1.0
+# Source: https://github.com/kubernetes-sigs/gateway-api/releases/tag/v1.1.0
+# Install these CRDs before creating Gateway/HTTPRoute resources.
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: gatewayclasses.gateway.networking.k8s.io
+spec:
+  group: gateway.networking.k8s.io
+  names:
+    kind: GatewayClass
+    plural: gatewayclasses
+    shortNames:
+      - gc
+    categories:
+      - gateway-api
+  scope: Cluster
+  versions:
+    - name: v1
+      served: true
+      storage: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: gateways.gateway.networking.k8s.io
+spec:
+  group: gateway.networking.k8s.io
+  names:
+    kind: Gateway
+    plural: gateways
+    shortNames:
+      - gw
+    categories:
+      - gateway-api
+  scope: Namespaced
+  versions:
+    - name: v1
+      served: true
+      storage: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: httproutes.gateway.networking.k8s.io
+spec:
+  group: gateway.networking.k8s.io
+  names:
+    kind: HTTPRoute
+    plural: httproutes
+    categories:
+      - gateway-api
+  scope: Namespaced
+  versions:
+    - name: v1
+      served: true
+      storage: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: tcproutes.gateway.networking.k8s.io
+spec:
+  group: gateway.networking.k8s.io
+  names:
+    kind: TCPRoute
+    plural: tcproutes
+    categories:
+      - gateway-api
+  scope: Namespaced
+  versions:
+    - name: v1
+      served: true
+      storage: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: tlsroutes.gateway.networking.k8s.io
+spec:
+  group: gateway.networking.k8s.io
+  names:
+    kind: TLSRoute
+    plural: tlsroutes
+    categories:
+      - gateway-api
+  scope: Namespaced
+  versions:
+    - name: v1
+      served: true
+      storage: true
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: udproutes.gateway.networking.k8s.io
+spec:
+  group: gateway.networking.k8s.io
+  names:
+    kind: UDPRoute
+    plural: udproutes
+    categories:
+      - gateway-api
+  scope: Namespaced
+  versions:
+    - name: v1
+      served: true
+      storage: true

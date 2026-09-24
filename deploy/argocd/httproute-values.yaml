@@ -1,0 +1,26 @@
+# ArgoCD HTTPRoute values for Envoy Gateway exposure
+# This enables the experimental `server.httproute` feature in the ArgoCD chart.
+# ArgoCD version: v2.11.0 (must match the version in values.yaml)
+
+server:
+  httproute:
+    # Enable HTTPRoute resource for ArgoCD server (Gateway API)
+    enabled: true
+    # Gateway API parentRefs for the HTTPRoute — must reference an existing Gateway
+    parentRefs:
+      - name: envoy-gateway
+        namespace: envoy-gateway
+        # sectionName: http   # only if the Gateway has named listener sections
+    # List of hostnames for the HTTPRoute — must match the Gateway listener's hostname
+    hostnames:
+      - argocd.example.local
+    # HTTPRoute rules configuration
+    rules:
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /
+        # filters: []   # uncomment to add filters (e.g., request header modifier)
+        # timeouts:
+        #   request: 10s
+        #   backendRequest: 2s
