@@ -5,6 +5,11 @@ configs:
   params:
     server.insecure: true  # HTTPS backend
 
+  cm:
+    repositories: |
+      - url: oci://docker.io/envoyproxy
+        name: envoyproxy
+
 dex:
   enabled: false
 

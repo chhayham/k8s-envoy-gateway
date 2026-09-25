@@ -1,9 +1,7 @@
-# Envoy Gateway
-
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: envoy-gateway-crds
+  name: envoy-gateway
   namespace: argocd
 spec:
   project: default
@@ -11,14 +9,15 @@ spec:
     helm:
       valuesObject:
         crds:
+          enabled: false
+        deployment:
           envoyGateway:
-            enabled: true	
-          gatewayAPI:
-            channel: "stable"	
-            enabled: false    
-    chart: gateway-crds-helm
-    path: gateway-crds-helm
-    repoURL: docker.io/envoyproxy
+            resources:
+              limits:
+                cpu: 700m
+                memory: 256Mi
+    chart: gateway-helm
+    repoURL: oci://docker.io/envoyproxy
     targetRevision: v1.9.1
   destination:
     namespace: envoy
