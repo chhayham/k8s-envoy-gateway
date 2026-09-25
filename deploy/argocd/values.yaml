@@ -1,53 +1,49 @@
-# ArgoCD base helm values for the demo
-# ArgoCD version: v2.11.0 (pin to ensure reproducibility)
+configs:
+  secret:
+    argocdServerAdminPassword: $2a$10$5vm8wXaSdbuff0m9l21JdevzXBzJFPCi8sy6OOnpZMAG.fOXL7jvO
 
-# Disable default ApplicationSet (not needed for this demo)
-applicationSet:
-  enabled: false
+  params:
+    server.insecure: true  # HTTPS backend
 
-# Disable Dex (we use GitHub auth in a real setup, but not required for the demo)
+  cm:
+    repositories: |
+      - url: oci://docker.io/envoyproxy
+        name: envoyproxy
+
 dex:
   enabled: false
 
-# Enable config management plugins (not strictly needed for basic demo)
-configManagementPlugins: |
-
-# Disable RBAC for simplicity (demo-only; for production, configure RBAC properly)
-rbac:
-  defaultPolicy: 'role:readonly'
-  scopes:
-    - 'group:*'
-
-# Disable notifications (not needed for this demo)
 notifications:
   enabled: false
 
-# Disable repo server metrics (not needed for this demo)
-repoServer:
-  metrics:
-    enabled: false
+global:
+  domain: "argocd.localhost"
 
-# Disable application controller metrics (not needed for this demo)
-applicationController:
-  metrics:
-    enabled: false
-
-# Disable grafana (not needed for this demo)
-grafana:
-  enabled: false
-
-# Disable prometheus (not needed for this demo)
-prometheus:
-  enabled: false
-
-# Disable server metrics (not needed for this demo)
 server:
-  metrics:
-    enabled: false
-  # Gateway API HTTPRoute for ArgoCD dashboard (set in httproute-values.yaml)
-  httproute:
-    enabled: false
+  extensions:
+    enabled: true
+    extensionList:
+      - name: argo-rollouts
+        env:
+          - name: EXTENSION_URL
+            value: https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.7/extension.tar 
 
-# Network policy (demo-only; disable for simplicity)
-networkPolicy:
-  enabled: false
+  httproute:
+    # Enable HTTPRoute resource for ArgoCD server (Gateway API)
+    enabled: true
+    # Gateway API parentRefs for the HTTPRoute — must reference an existing Gateway
+    parentRefs:
+      - name: envoy-gateway
+        namespace: envoy
+        sectionName: http
+    hostnames:
+      - argocd.localhost
+    rules:
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /
+        backendRefs:
+          - name: argocd-server
+            port: 80
+            namespace: argocd
