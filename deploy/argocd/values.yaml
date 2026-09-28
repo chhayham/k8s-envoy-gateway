@@ -5,10 +5,14 @@ configs:
   params:
     server.insecure: true  # HTTPS backend
 
-  cm:
-    repositories: |
-      - url: oci://docker.io/envoyproxy
-        name: envoyproxy
+  # cm:
+  #   repositories: |
+  #     - url: oci://docker.io/envoyproxy
+  #       name: envoyproxy
+  #     - url: quay.io/jetstack/charts
+  #       name: cert-manager
+  #     - url: oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack
+  #       name: kube-prometheus-stack
 
 dex:
   enabled: false
@@ -30,11 +34,11 @@ server:
 
   httproute:
     # Enable HTTPRoute resource for ArgoCD server (Gateway API)
-    enabled: true
+    enabled: false # gateway api crds will be installed by envoy gateway deploy.  httproute will be created in separate workflow
     # Gateway API parentRefs for the HTTPRoute — must reference an existing Gateway
     parentRefs:
       - name: envoy-gateway
-        namespace: envoy
+        namespace: envoy-gateway-system
         sectionName: http
     hostnames:
       - argocd.localhost

@@ -1,0 +1,14 @@
+addon: 
+  - name: fluent-bit
+    chart: fluent-bit
+    repoURL: https://fluent.github.io/helm-charts
+    targetRevision: 0.58.2
+    namespace: fluent-bit
+    helmValues: |
+      resources:
+        limits:
+          cpu: 300m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
