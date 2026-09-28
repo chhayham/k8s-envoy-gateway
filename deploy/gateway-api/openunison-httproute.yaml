@@ -1,0 +1,21 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: openunison
+  namespace: openunison
+spec:
+  parentRefs:
+    - name: envoy-gateway
+      namespace: envoy
+      sectionName: http
+  hostnames:
+    - "openunison.localhost"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: openunison
+          port: 8080
+          namespace: openunison

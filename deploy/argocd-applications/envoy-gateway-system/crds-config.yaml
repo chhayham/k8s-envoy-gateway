@@ -1,0 +1,13 @@
+addon: 
+  - name: envoy-gateway-system-crds
+    chart: gateway-crds-helm
+    repoURL: docker.io/envoyproxy
+    targetRevision: v1.9.1
+    namespace: envoy-gateway-system
+    helmValues: |
+      crds:
+        gatewayAPI:
+          enabled: true
+          channel: experimental   # Available options: standard, experimental
+        envoyGateway:
+          enabled: true

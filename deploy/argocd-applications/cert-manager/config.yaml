@@ -1,0 +1,15 @@
+addon:
+  - name: cert-manager
+    chart: cert-manager
+    repoURL: quay.io/jetstack/charts
+    targetRevision: v1.21.2
+    namespace: cert-manager
+    helmValues: |
+      installCRDs: true
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
