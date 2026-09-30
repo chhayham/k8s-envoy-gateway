@@ -1,0 +1,28 @@
+addon: 
+  - name: kube-prometheus-stack
+    chart: kube-prometheus-stack
+    repoURL: oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack
+    targetRevision: 91.7.0
+    namespace: kube-prometheus-stack
+    helmValues: |
+      grafana:
+        adminPassword: "admin"
+        datasources:
+        datasources.yaml:
+          apiVersion: 1
+          datasources:
+            - name: Loki
+              type: loki
+              access: proxy
+              url: http://loki-gateway.loki.svc.cluster.local
+              jsonData:
+                maxLines: 1000
+                httpHeaderName1: 'X-Scope-OrgID'
+              secureJsonData:
+                httpHeaderValue1: 'demo' # Replace with your tenant ID string
+
+      prometheusOperator:
+        admissionWebhooks:
+          enabled: true
+          certManager:
+            enabled: true

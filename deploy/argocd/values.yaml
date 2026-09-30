@@ -1,0 +1,53 @@
+configs:
+  secret:
+    argocdServerAdminPassword: $2a$10$5vm8wXaSdbuff0m9l21JdevzXBzJFPCi8sy6OOnpZMAG.fOXL7jvO
+
+  params:
+    server.insecure: true  # HTTPS backend
+
+  # cm:
+  #   repositories: |
+  #     - url: oci://docker.io/envoyproxy
+  #       name: envoyproxy
+  #     - url: quay.io/jetstack/charts
+  #       name: cert-manager
+  #     - url: oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack
+  #       name: kube-prometheus-stack
+
+dex:
+  enabled: false
+
+notifications:
+  enabled: false
+
+global:
+  domain: "argocd.localhost"
+
+server:
+  extensions:
+    enabled: true
+    extensionList:
+      - name: argo-rollouts
+        env:
+          - name: EXTENSION_URL
+            value: https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.7/extension.tar 
+
+  httproute:
+    # Enable HTTPRoute resource for ArgoCD server (Gateway API)
+    enabled: false # gateway api crds will be installed by envoy gateway deploy.  httproute will be created in separate workflow
+    # Gateway API parentRefs for the HTTPRoute — must reference an existing Gateway
+    parentRefs:
+      - name: envoy-gateway
+        namespace: envoy-gateway-system
+        sectionName: http
+    hostnames:
+      - argocd.localhost
+    rules:
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /
+        backendRefs:
+          - name: argocd-server
+            port: 80
+            namespace: argocd

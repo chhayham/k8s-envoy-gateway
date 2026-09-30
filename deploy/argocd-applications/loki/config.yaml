@@ -1,0 +1,85 @@
+addon: 
+  - name: loki
+    chart: loki
+    repoURL: https://grafana-community.github.io/helm-charts
+    targetRevision: 18.13.6
+    namespace: loki
+    helmValues: |
+      auth_enabled: false
+      loki:
+        podSecurityContext:
+          fsGroup: 10001
+          runAsGroup: 10001
+          runAsUser: 10001
+        auth_enabled: false
+        commonConfig:
+          ring:
+            instance_addr: 127.0.0.1
+            kvstore:
+              store: inmemory
+          replication_factor: 1
+          path_prefix: /tmp/loki
+        schemaConfig:
+          configs:
+            - from: 2020-05-15
+              store: tsdb
+              object_store: filesystem
+              schema: v13
+              index:
+                prefix: index_
+                period: 24h
+        storage:
+          # Loki requires a bucket for chunks and the ruler.
+          # Please provide these values if you are using object storage.
+          bucketNames:
+            chunks: chunks
+            ruler: ruler
+            admin: admin
+          type: filesystem
+          filesystem:
+            chunks_directory: /tmp/loki/chunks
+            rules_directory: /tmp/loki/rules
+        rulerConfig:
+          storage:
+            type: local
+            local:
+              directory: /tmp/loki/rules
+          wal:
+            dir: /tmp/loki/ruler-wal
+      ignoreMinioDeprecation: true  # Temporary workaround – MinIO will be removed 2026-10-31
+      minio:
+        enabled: false
+            
+      deploymentMode: Monolithic
+
+      singleBinary:
+        replicas: 1
+
+      # Zero out replica counts of other deployment modes
+      backend:
+        replicas: 0
+      read:
+        replicas: 0
+      write:
+        replicas: 0
+
+      ingester:
+        replicas: 0
+      querier:
+        replicas: 0
+      queryFrontend:
+        replicas: 0
+      queryScheduler:
+        replicas: 0
+      distributor:
+        replicas: 0
+      compactor:
+        replicas: 0
+      indexGateway:
+        replicas: 0
+      bloomPlanner:
+        replicas: 0
+      bloomBuilder:
+        replicas: 0
+      bloomGateway:
+        replicas: 0

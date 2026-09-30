@@ -1,0 +1,8 @@
+addon: 
+  - name: openunison
+    chart: openunison-operator
+    repoURL: https://nexus.tremolo.io/repository/helm
+    targetRevision: 3.0.31
+    namespace: openunison
+    helmValues: |
+      {}

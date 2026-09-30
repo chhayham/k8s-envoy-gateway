@@ -1,0 +1,64 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cluster-addons
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+  - matrix:
+      generators:
+      - git:
+          repoURL: https://github.com/chhayham/k8s-envoy-gateway
+          revision: 2026-09-28-4ccb2d
+          files:
+          - path: deploy/argocd-applications/**/*config.yaml
+      - list:
+          elementsYaml: "{{ .addon | toJson }}"
+  template:
+    metadata:
+      name: '{{.name}}'
+      namespace: argocd
+    spec:
+      project: default
+      source:
+        chart: '{{.chart}}'
+        repoURL: '{{.repoURL}}'
+        targetRevision: '{{.targetRevision}}'
+        helm:
+          values: |
+            {{.helmValues}}
+      destination:
+        server: 'https://kubernetes.default.svc'
+        namespace: '{{.namespace}}'
+      syncPolicy:
+        automated:
+          selfHeal: true
+          prune: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+---
+# Deploy gatewayclass, gateway, and httproute for envoy gateway
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: envoy-gatewayclass
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/chhayham/k8s-envoy-gateway
+    targetRevision: 2026-09-28-4ccb2d
+    path: deploy/argocd-applications/envoy-gateway-system/gatewayclass
+  destination:
+    namespace: envoy-gateway-system
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    - ServerSideApply=true
+    automated:
+      prune: true
+      selfHeal: true

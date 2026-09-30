@@ -1,0 +1,9 @@
+addon: 
+  - name: keda
+    chart: keda
+    repoURL: https://kedacore.github.io/charts
+    targetRevision: 2.21.0
+    namespace: keda
+    helmValues: |
+      serviceMonitor:
+        enabled: false
