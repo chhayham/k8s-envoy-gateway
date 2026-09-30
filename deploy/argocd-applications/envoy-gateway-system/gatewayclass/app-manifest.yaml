@@ -1,0 +1,21 @@
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: envoy-gatewayclass
+#   namespace: argocd
+# spec:
+#   project: default
+#   source:
+#     repoURL: https://github.com/chhayham/k8s-envoy-gateway
+#     targetRevision: 2026-09-25-818cfc
+#     path: deploy/argocd-applications/envoy-gateway-system/gatewayclass
+#   destination:
+#     namespace: envoy-gateway-system
+#     server: https://kubernetes.default.svc
+#   syncPolicy:
+#     syncOptions:
+#     - CreateNamespace=true
+#     - ServerSideApply=true
+#     automated:
+#       prune: true
+#       selfHeal: true
