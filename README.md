@@ -1,47 +1,14 @@
-# k8s-envoy-gateway
+# Kubernetes Envoy Gateway Demo
 
-GitOps Demo with ArgoCD and Envoy Gateway
+This project bootstraps a Kubernetes cluster with Envoy Gateway and ArgoCD for GitOps-based application management.
 
-<<<<<<< HEAD
-This project demonstrates how to deploy multiple Kubernetes applications using **ArgoCD** for GitOps, with all services exposed through **Envoy Gateway** using the Gateway API. The demo includes:
-=======
-This project demonstrates how to deploy **Envoy Gateway** to a Kubernetes cluster using **ArgoCD** for GitOps. The demo includes:
->>>>>>> origin/main
+## Prerequisites
 
-- Gateway API CRDs (installed via kubectl or setup script)
-- ArgoCD install (bootstrap)
-- Envoy Gateway deployed via an ArgoCD `Application` manifest using OCI registry
-<<<<<<< HEAD
-- Multiple applications deployed via ArgoCD with automated sync and self-healing
-- All services exposed via HTTPRoutes through Envoy Gateway
-
-## Applications Deployed
-
-| Application | Description | Namespace | Access URL |
-|-------------|-------------|-----------|------------|
-| **cert-manager** | TLS certificate management | cert-manager | cert-manager.localhost |
-| **kube-prometheus-stack** | Prometheus & Grafana monitoring stack | monitoring | prometheus.localhost, grafana.localhost |
-| **loki** | Log aggregation system | logging | loki.localhost |
-| **fluent-bit** | Log processor and forwarder | logging | - |
-| **openunison** | Kubernetes authentication portal | openunison | openunison.localhost |
-| **kargo** | Kubernetes GitOps workflow automation | kargo | kargo.localhost |
-| **argo-rollouts** | Advanced deployment strategies | argo-rollouts | rollouts.localhost |
-| **keda** | Kubernetes Event-driven Autoscaling | keda | keda.localhost |
-| **envoy-gateway** | Cloud-native API gateway | envoy | envoy-gateway.localhost |
-
-## Requirements
-
-- **Podman** (container runtime for minikube, enable docker compatibility in preferences) 
-=======
-- ArgoCD dashboard exposed via Envoy Gateway using the chart's built-in `server.httproute` (no manual `HTTPRoute` needed)
-
-## Requirements
-
-- **Podman** (container runtime for minikube)
->>>>>>> origin/main
-- **minikube** — single-node Kubernetes cluster (3 nodes with `--nodes=3` flag)
-- **kubectl** — Kubernetes CLI
-- **Helm** — for ArgoCD installation
+- [minikube](https://minikube.sigs.k8s.io/docs/start/) - Local Kubernetes development
+- [kubectl](https://kubernetes.io/docs/tasks/tools/) - Kubernetes CLI
+- [helm](https://helm.sh/docs/intro/install/) - Kubernetes package manager
+- [podman](https://podman.io/getting-started/installation) - Container runtime for minikube
+- [make](https://www.gnu.org/software/make/) - Build automation tool
 
 ## Quick Start
 
@@ -52,28 +19,23 @@ chmod +x scripts/setup.sh
 ./scripts/setup.sh
 ```
 
+### Using Makefile
+
+```bash
+make setup
+```
+
 The setup script:
-- Validates required tools (minikube, kubectl, helm)
+- Validates required tools (podman, kubectl, minikube, helm)
 - Creates a minikube cluster with 3 nodes (podman driver)
-- Installs Gateway API CRDs
-- Deploys ArgoCD with OCI repository support
-<<<<<<< HEAD
-- Deploys Envoy Gateway via kubectl (avoids OCI auth issues)
-- Creates Gateway API resources
-- Deploys all application manifests via ArgoCD
-=======
-- Deploys Envoy Gateway via GitOps
-- Creates Gateway API resources
->>>>>>> origin/main
+- Installs KEDA CRDs
+- Deploys ArgoCD via Helm
+- Deploys ApplicationSet from manifests
+- Waits for ArgoCD components to be ready
 
 ### Manual Installation
 
-1. **Install Gateway API CRDs**
-   ```bash
-   kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.1/standard-install.yaml?raw=true
-   ```
-
-2. **Deploy ArgoCD**
+1. **Deploy ArgoCD**
    ```bash
    helm repo add argo https://argoproj.github.io/argo-helm
    helm upgrade --install argocd argo/argo-cd \
@@ -84,194 +46,82 @@ The setup script:
      --wait
    ```
 
-<<<<<<< HEAD
-3. **Deploy ArgoCD Applications**
+2. **Deploy ArgoCD ApplicationSet**
    ```bash
-   # Deploy all applications using the combined manifest
-   kubectl apply -f deploy/argocd-applications/all-apps.yaml
-   
-   # Or deploy individual applications
-   kubectl apply -f deploy/argocd-applications/cert-manager-app.yaml
-   kubectl apply -f deploy/argocd-applications/kube-prometheus-stack-app.yaml
-   kubectl apply -f deploy/argocd-applications/loki-app.yaml
-   kubectl apply -f deploy/argocd-applications/fluent-bit-app.yaml
-   kubectl apply -f deploy/argocd-applications/openunison-app.yaml
-   kubectl apply -f deploy/argocd-applications/kargo-app.yaml
-   kubectl apply -f deploy/argocd-applications/argo-rollouts-app.yaml
-   kubectl apply -f deploy/argocd-applications/keda-app.yaml
+   kubectl apply -f deploy/argocd-applicationsets/root.yaml
    ```
 
-4. **Deploy Gateway API Resources**
-   ```bash
-   # Deploy all HTTPRoutes using the combined manifest
-   kubectl apply -f deploy/gateway-api/all-routes.yaml
-   
-   # Or deploy individual HTTPRoutes
-   kubectl apply -f deploy/gateway-api/envoy-gateway-routes.yaml
-   kubectl apply -f deploy/gateway-api/cert-manager-httproute.yaml
-   kubectl apply -f deploy/gateway-api/kube-prometheus-stack-httproute.yaml
-   kubectl apply -f deploy/gateway-api/loki-httproute.yaml
-   kubectl apply -f deploy/gateway-api/argo-rollouts-httproute.yaml
-   kubectl apply -f deploy/gateway-api/keda-httproute.yaml
-   kubectl apply -f deploy/gateway-api/openunison-httproute.yaml
-   kubectl apply -f deploy/gateway-api/kargo-httproute.yaml
-=======
-3. **Deploy Envoy Gateway via GitOps**
-   ```bash
-   kubectl apply -f deploy/arogcd-applications/envoy-gateway-crds-app.yaml
-   kubectl apply -f deploy/arogcd-applications/envoy-gateway-app.yaml
-   kubectl apply -f deploy/envoy/envoy-gateway.yaml
->>>>>>> origin/main
-   ```
+## Deployed Applications
 
-## Verification
+| Application | Version | Manifest | Notes |
+|-------------|---------|----------|-------|
+| Gateway API | v1 | `deploy/httproute/*.yaml` | Gateway API CRDs and routes |
+| ArgoCD | 10.9.2 | `deploy/argocd/values.yaml` | GitOps CD |
+| Envoy Gateway | v1.9.1 | `oci://docker.io/envoyproxy` | Gateway API implementation |
+| cert-manager | v1.21.2 | `deploy/argocd-applications/cert-manager/config.yaml` | Certificate management |
+| argo-rollouts | 2.43.2 | `deploy/argocd-applications/argo-rollouts/config.yaml` | Progressive delivery |
+| keda | 2.21.0 | `deploy/argocd-applications/keda/config.yaml` | Kubernetes event-driven autoscaling |
+| kube-prometheus-stack | 91.7.0 | `deploy/argocd-applications/kube-prometheus-stack/config.yaml` | Prometheus monitoring |
+| loki | 18.13.6 | `deploy/argocd-applications/loki/config.yaml` | Log aggregation |
+| fluent-bit | 0.58.2 | `deploy/argocd-applications/fluent-bit/config.yaml` | Log collection |
+| openunison | 3.0.31 | `deploy/argocd-applications/openunison/config.yaml` | Identity management |
+| kargo | 1.11.2 | `deploy/argocd-applications/kargo/config.yaml` | GitOps workflow |
 
-```bash
-# ArgoCD apps status
-kubectl -n argocd get applications -o wide
+## Application Management
 
-# Gateway and HTTPRoute status
-kubectl get gateway,httproute -A -o wide
-<<<<<<< HEAD
+### ArgoCD Application Pattern
 
-# Check all namespaces
-kubectl get all -A
-=======
->>>>>>> origin/main
+Applications use the ArgoCD Application API with the following configuration:
+- **Source**: OCI Helm charts from various repositories
+- **Sync Policy**: Automated sync with prune and self-healing enabled
+- **Namespace**: Each app deployed to its own namespace with `createNamespace=true`
+
+### Adding New Applications
+
+1. Create a directory under `deploy/argocd-applications/<app-name>/`
+2. Add `config.yaml` with the following structure:
+
+```yaml
+addon:
+  - name: <app-name>
+    chart: <chart-name>
+    repoURL: <helm-repo-url>
+    targetRevision: <version>
+    namespace: <namespace>
+    helmValues: |
+      <yaml-helm-values>
 ```
 
-### Accessing Services
+3. Optionally add an Application manifest at `deploy/argocd-applications/<app-name>/app-manifest.yaml`
+4. Add HTTPRoute at `deploy/httproute/<app-name>-httproute.yaml` if the app needs external access
 
-**1. Start minikube tunnel (in a separate terminal):**
-```bash
-sudo minikube tunnel -p demo
-```
-
-<<<<<<< HEAD
-Then access services:
-- **ArgoCD Dashboard:** `http://argocd.localhost`
-- **Envoy Gateway:** `http://envoy-gateway.localhost`
-- **cert-manager:** `http://cert-manager.localhost`
-- **Prometheus:** `http://prometheus.localhost`
-- **Grafana:** `http://grafana.localhost`
-- **Loki:** `http://loki.localhost`
-- **OpenUnison:** `http://openunison.localhost`
-- **Kargo:** `http://kargo.localhost`
-- **Argo Rollouts:** `http://rollouts.localhost`
-- **KEDA:** `http://keda.localhost`
-
-## Directory Structure
-
-```
-├── deploy/
-│   ├── argocd/                   # ArgoCD configuration
-│   │   └── values.yaml           # Custom ArgoCD values
-│   ├── argocd-applications/      # ArgoCD Application manifests
-│   │   ├── all-apps.yaml         # All ArgoCD applications combined
-│   │   ├── envoy-gateway-crds-app.yaml   # Envoy Gateway CRDs from OCI registry
-│   │   ├── envoy-gateway-app.yaml        # Envoy Gateway from OCI registry
-│   │   ├── cert-manager-app.yaml         # cert-manager application
-│   │   ├── kube-prometheus-stack-app.yaml # Prometheus & Grafana
-│   │   ├── loki-app.yaml                 # Loki log aggregation
-│   │   ├── fluent-bit-app.yaml           # Fluent-bit log processor
-│   │   ├── openunison-app.yaml           # OpenUnison authentication portal
-│   │   ├── kargo-app.yaml                # Kargo workflow automation
-│   │   ├── argo-rollouts-app.yaml        # Argo Rollouts
-│   │   └── keda-app.yaml                 # KEDA autoscaling
-│   └── gateway-api/              # Gateway API resources (HTTPRoutes)
-│       ├── all-routes.yaml       # All HTTPRoutes combined
-│       ├── envoy-gateway-routes.yaml     # Envoy Gateway routes
-│       ├── cert-manager-httproute.yaml
-│       ├── kube-prometheus-stack-httproute.yaml
-│       ├── loki-httproute.yaml
-│       ├── argo-rollouts-httproute.yaml
-│       ├── keda-httproute.yaml
-│       ├── openunison-httproute.yaml
-│       └── kargo-httproute.yaml
-=======
-**2. Open ArgoCD UI in your browser:**
-```
-http://argocd.localhost
-```
-- Username: `admin`
-- Password: `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d`
-
-**3. Open Envoy Gateway in your browser:**
-```
-http://argocd.localhost
-```
-- Envoy Gateway metrics: `http://argocd.localhost/metrics` (after configuring Prometheus scrape)
-
-## Directory Layout
-
-```
-.
-├── deploy/
-│   ├── argocd/                   # ArgoCD install (bootstrap step 2)
-│   │   └── values.yaml           # base ArgoCD helm values with OCI config
-│   ├── arogcd-applications/      # ArgoCD Application manifests (GitOps step 3)
-│   │   ├── envoy-gateway-crds-app.yaml  # Envoy Gateway CRDs from OCI registry
-│   │   └── envoy-gateway-app.yaml       # Envoy Gateway from OCI registry
-│   └── envoy/                    # Gateway API resources
-│       └── envoy-gateway.yaml
->>>>>>> origin/main
-└── scripts/
-    └── setup.sh                  # idempotent setup script
-```
-
-## Configuration
-
-| Component | Version | File |
-|-----------|---------|------|
-<<<<<<< HEAD
-| Gateway API | v1 | `deploy/gateway-api/*.yaml` |
-| ArgoCD | 10.9.2 | `deploy/argocd/values.yaml` |
-| Envoy Gateway | v1.9.1 | kubectl deployment (OCI: `oci://docker.io/envoyproxy`) |
-| cert-manager | v1.17.0 | `deploy/argocd-applications/cert-manager-app.yaml` |
-| kube-prometheus-stack | 69.2.1 | `deploy/argocd-applications/kube-prometheus-stack-app.yaml` |
-| loki | 18.13.5 | `deploy/argocd-applications/loki-app.yaml` |
-| fluent-bit | 0.58.2 | `deploy/argocd-applications/fluent-bit-app.yaml` |
-| openunison | latest | `deploy/argocd-applications/openunison-app.yaml` |
-| kargo | main | `deploy/argocd-applications/kargo-app.yaml` |
-| argo-rollouts | 2.43.2 | `deploy/argocd-applications/argo-rollouts-app.yaml` |
-| keda | 2.21.0 | `deploy/argocd-applications/keda-app.yaml` |
-=======
-| Gateway API | v1 | `deploy/envoy/envoy-gateway.yaml` |
-| ArgoCD | 10.9.2 | `deploy/argocd/values.yaml` |
-| Envoy Gateway | v1.9.1 | ArgoCD Application manifests (OCI: `oci://docker.io/envoyproxy`) |
->>>>>>> origin/main
-
-### Key Configuration Notes
-
-- **Gateway API version:** `v1` (`Gateway`, `HTTPRoute`)
-<<<<<<< HEAD
-- **ArgoCD v3.x:** The Application API schema has changed - the Helm chart configuration fields (`chart`, `repoURL`, `targetRevision`) are at the same level as `helm`, not nested inside it
-- **ArgoCD uses OCI registries** (`oci://docker.io/envoyproxy`) to pull Envoy Gateway Helm charts at sync time
-- The Envoy Gateway listener allows routes from all namespaces (`allowedRoutes.namespaces.from: All`)
-- All applications have `automated: true` with `prune: true` and `selfHeal: true`
-- Resource limits and requests are set for all applications
-=======
-- **ArgoCD's `server.httproute`** is marked **EXPERIMENTAL** — pinned chart version required
-- **ArgoCD uses OCI registries** (`oci://docker.io/envoyproxy`) to pull Envoy Gateway Helm charts at sync time
-- The Envoy Gateway listener must allow routes from the `argocd` namespace (`allowedRoutes.namespaces.from: All`)
->>>>>>> origin/main
-
-### Accessing Services
+## Accessing Services
 
 **ArgoCD Dashboard:**
 1. Run `sudo minikube tunnel -p demo` in a separate terminal
 2. Open `http://argocd.localhost` in your browser
 3. Username: `admin`
-4. Password: `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d`
+4. Password: `admin`
 
 **Envoy Gateway:**
-<<<<<<< HEAD
 - HTTP traffic: `http://envoy-gateway.localhost`
 - Envoy Gateway metrics: `http://envoy-gateway.localhost/metrics`
-=======
-- HTTP traffic: `http://argocd.localhost`
-- Envoy Gateway metrics: `http://argocd.localhost/metrics`
->>>>>>> origin/main
+
+**Application Routes:**
+- Argo Rollouts: `http://rollouts.localhost`
+- KEDA: `http://keda.localhost`
+- cert-manager: `http://cert-manager.localhost`
+- Kargo: `http://kargo.localhost`
+- Prometheus: `http://prometheus.localhost`
+- Loki: `http://loki.localhost`
+
+## Key Configuration Notes
+
+- **Gateway API version:** `v1` (`Gateway`, `HTTPRoute`)
+- **ArgoCD v3.x:** Uses OCI registries for Helm charts (`oci://docker.io/envoyproxy`)
+- **Envoy Gateway listener:** Allows routes from all namespaces (`allowedRoutes.namespaces.from: All`)
+- **All applications:** Have `automated: true` with `prune: true` and `selfHeal: true`
+- **Resource limits:** Set for all applications (CPU/memory)
 
 ## Troubleshooting
 
@@ -279,16 +129,16 @@ http://argocd.localhost
 ```bash
 kubectl -n argocd get applications -o wide
 kubectl -n argocd logs deploy/argocd-application-controller
+kubectl -n argocd get applicationsets.argoproj.io cluster-addons -o yaml
 ```
 
 ### Gateway not accepting routes
 ```bash
 kubectl get gateway -A -o wide
 kubectl get httproute -A -o wide
-kubectl -n envoy get pods,svc
+kubectl -n envoy-gateway-system get pods,svc
 ```
 
-<<<<<<< HEAD
 ### Check route status
 ```bash
 # Check if routes are accepted and resolved
@@ -296,12 +146,31 @@ kubectl get httproute -A -o wide
 kubectl get httproute <name> -n <namespace> -o yaml
 ```
 
-=======
->>>>>>> origin/main
 ### ArgoCD UI not loading
 - Verify the `HTTPRoute` conditions: `kubectl -n argocd get httproute argocd-server -o yaml`
 - Check the `HTTPRoute.status.parents[].conditions` for `Accepted` / `ResolvedRefs`
 - Confirm the `HTTPRoute` `parentRefs` match the Envoy Gateway `name` and `namespace`
+
+## Project Structure
+
+```
+├── deploy/
+│   ├── argocd/                    # ArgoCD Helm values
+│   │   └── values.yaml
+│   ├── argocd-applications/       # Application manifests
+│   │   ├── <app-name>/
+│   │   │   ├── config.yaml        # ApplicationSet config
+│   │   └── httproute/             # HTTPRoute manifests
+│   │       └── <app>-httproute.yaml
+│   ├── argocd-applicationsets/    # ApplicationSet manifests
+│   │   └── root.yaml
+│   └── httproute/                 # HTTPRoute manifests (alternative location)
+│       └── *.yaml
+├── scripts/
+│   └── setup.sh                   # Bootstrap script
+├── Makefile                       # Convenience targets
+└── README.md
+```
 
 ## Development
 
