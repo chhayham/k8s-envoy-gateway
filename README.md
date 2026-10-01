@@ -55,17 +55,17 @@ The setup script:
 
 | Application | Version | Manifest | Notes |
 |-------------|---------|----------|-------|
-| Gateway API | v1 | `deploy/httproute/*.yaml` | Gateway API CRDs and routes |
+| Gateway API | v1 | `deploy/argocd-applications/envoy-gateway-system/crds-config.yaml` | Gateway API CRDs (experimental channel) |
+| Envoy Gateway | v1.9.1 | `deploy/argocd-applications/envoy-gateway-system/gw-config.yaml` | Gateway API implementation |
 | ArgoCD | 10.9.2 | `deploy/argocd/values.yaml` | GitOps CD |
-| Envoy Gateway | v1.9.1 | `oci://docker.io/envoyproxy` | Gateway API implementation |
+| Argo Rollouts | 2.43.2 | `deploy/argocd-applications/argo-rollouts/config.yaml` | Progressive delivery |
 | cert-manager | v1.21.2 | `deploy/argocd-applications/cert-manager/config.yaml` | Certificate management |
-| argo-rollouts | 2.43.2 | `deploy/argocd-applications/argo-rollouts/config.yaml` | Progressive delivery |
-| keda | 2.21.0 | `deploy/argocd-applications/keda/config.yaml` | Kubernetes event-driven autoscaling |
+| KEDA | 2.21.0 | `deploy/argocd-applications/keda/config.yaml` | Kubernetes event-driven autoscaling |
 | kube-prometheus-stack | 91.7.0 | `deploy/argocd-applications/kube-prometheus-stack/config.yaml` | Prometheus monitoring |
 | loki | 18.13.6 | `deploy/argocd-applications/loki/config.yaml` | Log aggregation |
 | fluent-bit | 0.58.2 | `deploy/argocd-applications/fluent-bit/config.yaml` | Log collection |
 | openunison | 3.0.31 | `deploy/argocd-applications/openunison/config.yaml` | Identity management |
-| kargo | 1.11.2 | `deploy/argocd-applications/kargo/config.yaml` | GitOps workflow |
+| Kargo | 1.11.2 | `deploy/argocd-applications/kargo/config.yaml` | GitOps workflow |
 
 ## Application Management
 
@@ -93,7 +93,7 @@ addon:
 ```
 
 3. Optionally add an Application manifest at `deploy/argocd-applications/<app-name>/app-manifest.yaml`
-4. Add HTTPRoute at `deploy/httproute/<app-name>-httproute.yaml` if the app needs external access
+4. Add HTTPRoute at `deploy/httproute/<app-name>/<app-name>-httproute.yaml` if the app needs external access
 
 ## Accessing Services
 
@@ -105,23 +105,23 @@ addon:
 
 **Envoy Gateway:**
 - HTTP traffic: `http://envoy-gateway.localhost`
-- Envoy Gateway metrics: `http://envoy-gateway.localhost/metrics`
 
 **Application Routes:**
 - Argo Rollouts: `http://rollouts.localhost`
-- KEDA: `http://keda.localhost`
 - cert-manager: `http://cert-manager.localhost`
 - Kargo: `http://kargo.localhost`
 - Prometheus: `http://prometheus.localhost`
 - Loki: `http://loki.localhost`
+- openunison: `http://openunison.localhost`
 
 ## Key Configuration Notes
 
 - **Gateway API version:** `v1` (`Gateway`, `HTTPRoute`)
-- **ArgoCD v3.x:** Uses OCI registries for Helm charts (`oci://docker.io/envoyproxy`)
+- **Envoy Gateway CRDs:** Installed via `gateway-crds-helm` chart with experimental channel
+- **ArgoCD v3.x:** Uses OCI registries for Helm charts (`oci://ghcr.io/...`)
 - **Envoy Gateway listener:** Allows routes from all namespaces (`allowedRoutes.namespaces.from: All`)
 - **All applications:** Have `automated: true` with `prune: true` and `selfHeal: true`
-- **Resource limits:** Set for all applications (CPU/memory)
+- **Resource limits:** Set for most applications (CPU/memory)
 
 ## Troubleshooting
 
@@ -157,15 +157,21 @@ kubectl get httproute <name> -n <namespace> -o yaml
 ├── deploy/
 │   ├── argocd/                    # ArgoCD Helm values
 │   │   └── values.yaml
-│   ├── argocd-applications/       # Application manifests
+│   ├── argocd-applications/       # Application manifests for ApplicationSet
 │   │   ├── <app-name>/
-│   │   │   ├── config.yaml        # ApplicationSet config
-│   │   └── httproute/             # HTTPRoute manifests
-│   │       └── <app>-httproute.yaml
+│   │   │   ├── config.yaml        # ApplicationSet config (required)
+│   │   │   ├── app-manifest.yaml  # Optional Application manifest
+│   │   │   └── <additional-files>
+│   │   ├── envoy-gateway-system/
+│   │   │   ├── crds-config.yaml   # Envoy Gateway CRDs
+│   │   │   ├── gw-config.yaml     # Envoy Gateway config
+│   │   │   └── gatewayclass/      # Gateway API resources
+│   │   │       └── resource-manifest.yaml
 │   ├── argocd-applicationsets/    # ApplicationSet manifests
-│   │   └── root.yaml
-│   └── httproute/                 # HTTPRoute manifests (alternative location)
-│       └── *.yaml
+│   │   └── root.yaml              # Main ApplicationSet definition
+│   └── httproute/                 # HTTPRoute manifests for external access
+│       └── <app-name>/
+│           └── <app-name>-httproute.yaml
 ├── scripts/
 │   └── setup.sh                   # Bootstrap script
 ├── Makefile                       # Convenience targets
