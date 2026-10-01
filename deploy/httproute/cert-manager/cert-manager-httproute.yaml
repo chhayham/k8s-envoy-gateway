@@ -5,8 +5,10 @@ metadata:
   namespace: cert-manager
 spec:
   parentRefs:
-    - name: envoy-gateway
-      namespace: envoy
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-gateway
+      namespace: envoy-gateway-system
       sectionName: http
   hostnames:
     - "cert-manager.localhost"
@@ -19,3 +21,6 @@ spec:
         - name: cert-manager-webhook
           port: 443
           namespace: cert-manager
+          group: ''
+          kind: Service 
+          weight: 1

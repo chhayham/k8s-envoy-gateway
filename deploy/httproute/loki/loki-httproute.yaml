@@ -5,8 +5,10 @@ metadata:
   namespace: loki
 spec:
   parentRefs:
-    - name: envoy-gateway
-      namespace: envoy
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-gateway
+      namespace: envoy-gateway-system
       sectionName: http
   hostnames:
     - "loki.localhost"
@@ -19,3 +21,7 @@ spec:
         - name: loki-gateway
           port: 80
           namespace: loki
+          group: ''
+          kind: Service 
+          weight: 1
+          
