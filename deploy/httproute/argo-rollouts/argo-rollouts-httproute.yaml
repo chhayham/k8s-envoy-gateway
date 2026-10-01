@@ -5,7 +5,9 @@ metadata:
   namespace: argo-rollouts
 spec:
   parentRefs:
-    - name: envoy-gateway
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-gateway
       namespace: envoy
       sectionName: http
   hostnames:
@@ -16,6 +18,9 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: argo-rollouts
+        - group: ''
+          kind: Service
+          name: argo-rollouts
           port: 3100
           namespace: argo-rollouts
+          weight: 1
