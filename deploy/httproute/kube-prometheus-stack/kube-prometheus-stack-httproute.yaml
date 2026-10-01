@@ -18,7 +18,7 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: prometheus-kube-prometheus-stack-prometheus
+        - name: kube-prometheus-stack-prometheus
           port: 9090
           namespace: kube-prometheus-stack
           group: ''
@@ -45,10 +45,36 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: grafana
+        - name: kube-prometheus-stack-grafana
           port: 80
           namespace: kube-prometheus-stack
           group: ''
           kind: Service 
           weight: 1
-          
+--- 
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: alertmanager
+  namespace: kube-prometheus-stack
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-gateway
+      namespace: envoy-gateway-system
+      sectionName: http
+  hostnames:
+    - "alert-manager.localhost"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: kube-prometheus-stack-alertmanager
+          port: 9093
+          namespace: kube-prometheus-stack
+          group: ''
+          kind: Service 
+          weight: 1
