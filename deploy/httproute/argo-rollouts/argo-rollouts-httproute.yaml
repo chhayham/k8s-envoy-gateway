@@ -20,7 +20,7 @@ spec:
       backendRefs:
         - group: ''
           kind: Service
-          name: argo-rollouts
+          name: argo-rollouts-dashboard
           port: 3100
           namespace: argo-rollouts
           weight: 1
