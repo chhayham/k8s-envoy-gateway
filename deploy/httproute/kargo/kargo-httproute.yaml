@@ -19,7 +19,7 @@ spec:
             value: /
       backendRefs:
         - name: kargo-api
-          port: 8080
+          port: 80
           namespace: kargo
           group: ''
           kind: Service 
