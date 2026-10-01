@@ -5,8 +5,10 @@ metadata:
   namespace: openunison
 spec:
   parentRefs:
-    - name: envoy-gateway
-      namespace: envoy
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: envoy-gateway
+      namespace: envoy-gateway-system
       sectionName: http
   hostnames:
     - "openunison.localhost"
@@ -19,3 +21,7 @@ spec:
         - name: openunison
           port: 8080
           namespace: openunison
+          group: ''
+          kind: Service 
+          weight: 1
+          

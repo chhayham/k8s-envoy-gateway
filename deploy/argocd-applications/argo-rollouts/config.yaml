@@ -5,3 +5,5 @@ addon:
     targetRevision: 2.43.2
     namespace: argo-rollouts
     helmValues: |
+      dashboard:
+        enabled: true
