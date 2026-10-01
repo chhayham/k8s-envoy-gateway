@@ -74,7 +74,7 @@ spec:
   generators:
     - git:
         repoURL: https://github.com/chhayham/k8s-envoy-gateway
-        revision: 2026-10-01-c969d1 #main
+        revision: main
         files:
         - path: deploy/httproute/*
   template:
@@ -85,7 +85,7 @@ spec:
       project: default
       source:
         repoURL: https://github.com/chhayham/k8s-envoy-gateway
-        targetRevision: 2026-10-01-c969d1 #main
+        targetRevision: main
         path: '{{.path.path}}'
       destination:
         namespace: '{{.path.basename}}'
