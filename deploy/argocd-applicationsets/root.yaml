@@ -11,7 +11,7 @@ spec:
       generators:
       - git:
           repoURL: https://github.com/chhayham/k8s-envoy-gateway
-          revision: 2026-10-01-c969d1 #main
+          revision: main
           files:
           - path: deploy/argocd-applications/**/*config.yaml
       - list:
@@ -50,7 +50,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/chhayham/k8s-envoy-gateway
-    targetRevision: 2026-10-01-c969d1 #main
+    targetRevision: main
     path: deploy/argocd-applications/envoy-gateway-system/gatewayclass
   destination:
     namespace: envoy-gateway-system
