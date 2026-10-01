@@ -20,6 +20,6 @@ spec:
       backendRefs:
         - group: ''
           kind: Service
-          name: argo-server
+          name: argocd-server
           port: 8080
           namespace: argocd
