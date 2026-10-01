@@ -79,16 +79,16 @@ spec:
         - path: deploy/httproute/*
   template:
     metadata:
-      name: '{{path.basename}}-httproute'
+      name: '{{.path.basename}}-httproute'
       namespace: argocd
     spec:
       project: default
       source:
         repoURL: https://github.com/chhayham/k8s-envoy-gateway
         targetRevision: 2026-10-01-c969d1 #main
-        path: '{{path.path}}'
+        path: '{{.path.path}}'
       destination:
-        namespace: '{{path.basename}}'
+        namespace: '{{.path.basename}}'
         server: https://kubernetes.default.svc
       syncPolicy:
         syncOptions:
