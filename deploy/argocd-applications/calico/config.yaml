@@ -1,11 +1,4 @@
 addon: 
-  - name: calico-crds
-    chart: projectcalico.org.v3
-    repoURL: https://docs.tigera.io/calico/charts
-    targetRevision: v3.33.0
-    namespace: calico
-    helmValues: |
-      {}
   - name: calico
     chart: projectcalico
     repoURL: https://docs.tigera.io/calico/charts
