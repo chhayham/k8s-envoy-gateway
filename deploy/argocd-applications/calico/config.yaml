@@ -1,0 +1,22 @@
+addon: 
+  - name: calico-crds
+    chart: calico-crds
+    repoURL: https://docs.tigera.io/calico/charts
+    targetRevision: v3.33.0
+    namespace: calico
+    helmValues: |
+      {}
+  - name: calico
+    chart: projectcalico
+    repoURL: https://docs.tigera.io/calico/charts
+    targetRevision: v3.33.0
+    namespace: calico
+    helmValues: |
+      installation:
+        kubernetesProvider: Kind
+        cni:
+          type: Calico
+        calicoNetwork:
+          bgp: Disabled
+          ipPools:
+          - cidr: 10.244.0.0/16
