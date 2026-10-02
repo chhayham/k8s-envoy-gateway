@@ -27,3 +27,4 @@ addon:
         api_server_host: "k8sapi.localhost"
     repoURL: https://nexus.tremolo.io/repository/helm
     targetRevision: 2.3.98
+    namespace: openunison
