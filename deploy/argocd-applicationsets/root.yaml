@@ -41,6 +41,7 @@ spec:
           - ServerSideApply=true
 ---
 # Deploy gatewayclass, gateway, and httproute for envoy gateway
+# Todo: create helm chart for gatewayclass and gateway?  Then it can be added to addons applicationset
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -63,6 +64,7 @@ spec:
       prune: true
       selfHeal: true
 --- 
+# Todo: create helm chart for httproute?  Then it can be added to addons applicationset
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
