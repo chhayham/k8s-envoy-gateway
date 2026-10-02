@@ -1,4 +1,4 @@
-# Todo: move to crds folder? Can add KEDA crds to this workflow
+# Todo: move to crds folder? Can add KEDA and Envoy crds to this workflow
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
