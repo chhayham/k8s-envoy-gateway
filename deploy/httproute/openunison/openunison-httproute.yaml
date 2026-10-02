@@ -11,14 +11,14 @@ spec:
       namespace: envoy-gateway-system
       sectionName: http
   hostnames:
-    - "openunison.localhost"
+    - "k8sou.localhost"
   rules:
     - matches:
         - path:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: openunison
+        - name: ouhtml-openunison-portal
           port: 8080
           namespace: openunison
           group: ''
