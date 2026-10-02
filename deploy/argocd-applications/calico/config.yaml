@@ -1,6 +1,6 @@
 addon: 
   - name: calico-crds
-    chart: projectcalico/crd.projectcalico.org.v1
+    chart: projectcalico.org.v3
     repoURL: https://docs.tigera.io/calico/charts
     targetRevision: v3.33.0
     namespace: calico
