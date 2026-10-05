@@ -21,23 +21,11 @@ addon:
                 name: envoy-gateway
                 namespace: envoy-gateway-system
                 sectionName: http      
-  - name: openunison-orchestra
-    chart: orchestra
-    helmValues: |
-      network:
-        openunison_host: "k8sou.localhost"
-        dashboard_host: "k8sdb.localhost"
-        api_server_host: "k8sapi.localhost"
-    repoURL: https://nexus.tremolo.io/repository/helm
-    targetRevision: 3.1.56
-    namespace: openunison
   - name: openunison-portal
     chart: orchestra-login-portal
     helmValues: |
       network:
         openunison_host: "k8sou.localhost"
-        dashboard_host: "k8sdb.localhost"
-        api_server_host: "k8sapi.localhost"
       network:
         gatewayapi:
           class: envoy
