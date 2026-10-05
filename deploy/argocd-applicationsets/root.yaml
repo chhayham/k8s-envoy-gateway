@@ -87,6 +87,28 @@ spec:
       prune: true
       selfHeal: true
 --- 
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openunison-secret
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/chhayham/k8s-envoy-gateway
+    targetRevision: 2026-10-02-83df44 #main
+    path: deploy/argocd-applications/openunison/secret/manifest.yaml
+  destination:
+    namespace: openunison
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+    - ServerSideApply=true
+    automated:
+      prune: true
+      selfHeal: true
+--- 
 # Todo: create helm chart for httproute?  Then it can be added to addons applicationset
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
