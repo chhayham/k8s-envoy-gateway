@@ -38,6 +38,19 @@ addon:
         openunison_host: "k8sou.localhost"
         dashboard_host: "k8sdb.localhost"
         api_server_host: "k8sapi.localhost"
+      network:
+        gatewayapi:
+          class: envoy
+          gateway:
+            # disable the creation of the Gateway object
+            create: false
+            # specify the parent_refs for the web components of OpenUnison
+            parent_refs:
+              - group: gateway.networking.k8s.io
+                kind: Gateway
+                name: envoy-gateway
+                namespace: envoy-gateway-system
+                sectionName: http   
     repoURL: https://nexus.tremolo.io/repository/helm
     targetRevision: 2.3.98
     namespace: openunison
