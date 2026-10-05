@@ -97,7 +97,7 @@ spec:
   source:
     repoURL: https://github.com/chhayham/k8s-envoy-gateway
     targetRevision: 2026-10-02-83df44 #main
-    path: deploy/argocd-applications/openunison/secret/manifest.yaml
+    path: deploy/argocd-applications/openunison/secret
   destination:
     namespace: openunison
     server: https://kubernetes.default.svc
