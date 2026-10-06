@@ -13,7 +13,7 @@ addon:
         k8s_url: https://192.168.2.130:6443
         force_redirect_to_tls: false
         createIngressCertificate: true
-        ingress_type: nginx
+        ingress_type: gateway
         ingress_annotations: {}
 
       cert_template:
@@ -86,7 +86,7 @@ addon:
       network_policies:
         enabled: false
         ingress:
-          enabled: true
+          enabled: false
           labels:
             app.kubernetes.io/name: ingress-nginx
         monitoring:
