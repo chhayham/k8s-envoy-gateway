@@ -58,6 +58,8 @@ fi
 echo "✓ Minikube cluster ready"
 
 # Template Calico CRDs and install CRDs
+echo ""
+echo "=== Deploying Calico CRDs ==="
 CALICO_CRDS_VERSION=v3.33.0
 helm repo add projectcalico https://docs.tigera.io/calico/charts
 helm repo update
