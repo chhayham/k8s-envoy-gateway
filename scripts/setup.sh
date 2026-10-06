@@ -61,8 +61,9 @@ echo "✓ Minikube cluster ready"
 CALICO_CRDS_VERSION=v3.33.0
 helm repo add projectcalico https://docs.tigera.io/calico/charts
 helm repo update
-helm template calico-crds projectcalico/projectcalico.org.v3 --version $CALICO_CRDS_VERSION --api-versions admissionregistration.k8s.io/v1beta1/MutatingAdmissionPolicy --output-dir deploy/argocd-applications/calico/crds-manifest
-
+# kubectl create namespace calico
+helm template calico-crds projectcalico/projectcalico.org.v3 --version $CALICO_CRDS_VERSION --api-versions admissionregistration.k8s.io/v1beta1/MutatingAdmissionPolicy --output-dir deploy/argocd-applications/calico/crds
+# helm template calico-crds projectcalico/projectcalico.org.v3 --version $CALICO_CRDS_VERSION --api-versions admissionregistration.k8s.io/v1beta1/MutatingAdmissionPolicy | kubectl apply --server-side -f -
 
 # Install KEDA CRDs
 echo ""
