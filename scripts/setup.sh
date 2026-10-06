@@ -63,8 +63,7 @@ helm repo add projectcalico https://docs.tigera.io/calico/charts
 helm repo update
 kubectl create namespace tigera-operator --dry-run=client -o yaml | kubectl apply -f -
 # helm template calico-crds projectcalico/projectcalico.org.v3 --version $CALICO_CRDS_VERSION --api-versions admissionregistration.k8s.io/v1beta1/MutatingAdmissionPolicy --output-dir deploy/argocd-applications/calico/crds
-helm template calico-crds projectcalico/projectcalico.org.v3 --version $CALICO_CRDS_VERSION --api-versions admissionregistration.k8s.io/v1beta1/MutatingAdmissionPolicy --namespace calico | kubectl apply --server-side -f -
-
+helm template calico-crds projectcalico/projectcalico.org.v3 --version $CALICO_CRDS_VERSION --api-versions admissionregistration.k8s.io/v1/MutatingAdmissionPolicy | kubectl apply --server-side -f -
 # Install KEDA CRDs
 echo ""
 echo "=== Deploying KEDA CRDs ==="
