@@ -1,25 +1,25 @@
 # Todo: move to crds folder? Can add KEDA and Envoy crds to this workflow
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: calico-crds
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/chhayham/k8s-envoy-gateway
-    targetRevision: 2026-10-02-83df44 #main
-    path: deploy/argocd-applications/calico/crds
-  destination:
-    namespace: calico
-    server: https://kubernetes.default.svc
-  syncPolicy:
-    syncOptions:
-    - CreateNamespace=true
-    - ServerSideApply=true
-    automated:
-      prune: true
-      selfHeal: true
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: calico-crds
+#   namespace: argocd
+# spec:
+#   project: default
+#   source:
+#     repoURL: https://github.com/chhayham/k8s-envoy-gateway
+#     targetRevision: 2026-10-02-83df44 #main
+#     path: deploy/argocd-applications/calico/crds
+#   destination:
+#     namespace: calico
+#     server: https://kubernetes.default.svc
+#   syncPolicy:
+#     syncOptions:
+#     - CreateNamespace=true
+#     - ServerSideApply=true
+#     automated:
+#       prune: true
+#       selfHeal: true
 --- 
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
