@@ -1,5 +1,5 @@
 addon: 
-  - name: openunison-orchestra
+  - name: orchestra
     chart: orchestra
     repoURL: https://nexus.tremolo.io/repository/helm
     targetRevision: 3.1.56
