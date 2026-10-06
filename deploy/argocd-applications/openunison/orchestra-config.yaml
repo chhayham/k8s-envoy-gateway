@@ -105,6 +105,8 @@ addon:
         node_selectors: []
         
       openunison:
+        auto_timestamp: false
+        force_update: initial-deployment        
         replicas: 1
         non_secret_data:
           K8S_DB_SSO: oidc
