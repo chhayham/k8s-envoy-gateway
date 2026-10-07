@@ -106,6 +106,12 @@ echo ""
 echo "ApplicationSet status:"
 kubectl get applicationsets.argoproj.io cluster-addons -n "$ARGO_NS" -o wide
 
+
+echo ""
+echo "Deploying Openunison secret..."
+kubectl apply -f deploy/argocd-applications/openunison/secret/manifest.yaml --dry-run=client -o yaml | kubectl apply -f -
+
+
 echo ""
 echo "=== Setup Complete ==="
 echo "ArgoCD is running in namespace '$ARGO_NS'"
