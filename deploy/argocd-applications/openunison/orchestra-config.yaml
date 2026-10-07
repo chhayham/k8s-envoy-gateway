@@ -23,6 +23,15 @@ addon:
               "name": "enovy-gateway",
               "namespace": "envoy-gateway-system"
             }
+        gatewayapi:
+          gateway: 
+            create: false
+            parent_refs:
+              group: gateway.networking.k8s.io
+              kind: Gateway 
+              name: envoy-gateway 
+              namespace: envoy-gateway-system
+
       cert_template:
         ou: "Kubernetes"
         o: "MyOrg"
