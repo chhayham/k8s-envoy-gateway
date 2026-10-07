@@ -7,7 +7,7 @@ addon:
         dashboard_host: "k8sdb.localhost"
         api_server_host: "k8sapi.localhost"
         session_inactivity_timeout_seconds: 900
-        k8s_url: kubernetes.default.svc.cluster.local
+        k8s_url: "https://default.svc"
         force_redirect_to_tls: false
         createIngressCertificate: true
         ingress_type: gatewayapi
