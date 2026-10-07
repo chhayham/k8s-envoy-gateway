@@ -10,12 +10,19 @@ addon:
         dashboard_host: "k8sdb.localhost"
         api_server_host: "k8sapi.localhost"
         session_inactivity_timeout_seconds: 900
-        k8s_url: https://192.168.2.130:6443
+        k8s_url: kubernetes.default.svc.cluster.local
         force_redirect_to_tls: false
-        # createIngressCertificate: true
-        # ingress_type: nginx
-        # ingress_annotations: {}
-
+        createIngressCertificate: true
+        ingress_type: gatewayapi
+        ingress_annotations:
+          gateway.networking.k8s.io/gateway-name: "envoy-gateway"
+          gateway.networking.k8s.io/parent-ref: >-
+            {
+              "group": "gateway.networking.k8s.io",
+              "kind": "Gateway",
+              "name": "enovy-gateway",
+              "namespace": "envoy-gateway-system"
+            }
       cert_template:
         ou: "Kubernetes"
         o: "MyOrg"
