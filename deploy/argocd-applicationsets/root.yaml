@@ -65,28 +65,28 @@ spec:
 ---
 # Deploy gatewayclass, gateway, and httproute for envoy gateway
 # Todo: create helm chart for gatewayclass and gateway?  Then it can be added to addons applicationset
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: envoy-gatewayclass
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/chhayham/k8s-envoy-gateway
-    targetRevision: 2026-10-02-83df44 #main
-    path: deploy/argocd-applications/envoy-gateway-system/gatewayclass
-  destination:
-    namespace: envoy-gateway-system
-    server: https://kubernetes.default.svc
-  syncPolicy:
-    syncOptions:
-    - CreateNamespace=true
-    - ServerSideApply=true
-    automated:
-      prune: true
-      selfHeal: true
---- 
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: envoy-gatewayclass
+#   namespace: argocd
+# spec:
+#   project: default
+#   source:
+#     repoURL: https://github.com/chhayham/k8s-envoy-gateway
+#     targetRevision: 2026-10-02-83df44 #main
+#     path: deploy/argocd-applications/envoy-gateway-system/gatewayclass
+#   destination:
+#     namespace: envoy-gateway-system
+#     server: https://kubernetes.default.svc
+#   syncPolicy:
+#     syncOptions:
+#     - CreateNamespace=true
+#     - ServerSideApply=true
+#     automated:
+#       prune: true
+#       selfHeal: true
+---
 # apiVersion: argoproj.io/v1alpha1
 # kind: Application
 # metadata:
@@ -134,6 +134,41 @@ spec:
         repoURL: https://github.com/chhayham/k8s-envoy-gateway
         targetRevision: 2026-10-02-83df44 #main
         path: '{{.path.path}}'
+      destination:
+        namespace: '{{.path.basename}}'
+        server: https://kubernetes.default.svc
+      syncPolicy:
+        syncOptions:
+        - CreateNamespace=true
+        - ServerSideApply=true
+        automated:
+          prune: true
+          selfHeal: true
+--- 
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cluster-addons-resources
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/chhayham/k8s-envoy-gateway
+        revision: 2026-10-02-83df44 #main
+        files:
+        - path: deploy/argocd-applications/*/*
+  template:
+    metadata:
+      name: '{{.path.basename}}-resources'
+      namespace: argocd
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/chhayham/k8s-envoy-gateway
+        targetRevision: 2026-10-02-83df44 #main
+        path: '{{.path.path}}/*/'
       destination:
         namespace: '{{.path.basename}}'
         server: https://kubernetes.default.svc
