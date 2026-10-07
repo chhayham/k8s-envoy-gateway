@@ -27,10 +27,11 @@ addon:
           gateway: 
             create: false
             parent_refs:
-              group: gateway.networking.k8s.io
-              kind: Gateway 
-              name: envoy-gateway 
-              namespace: envoy-gateway-system
+              - group: gateway.networking.k8s.io
+                kind: Gateway 
+                name: envoy-gateway 
+                namespace: envoy-gateway-system
+                sectionName: http
 
       cert_template:
         ou: "Kubernetes"
