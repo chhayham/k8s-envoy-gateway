@@ -168,7 +168,7 @@ spec:
       source:
         repoURL: https://github.com/chhayham/k8s-envoy-gateway
         targetRevision: 2026-10-02-83df44 #main
-        path: '{{.path.path}}/*/'
+        path: '{{.path.path}}/*'
       destination:
         namespace: '{{.path.basename}}'
         server: https://kubernetes.default.svc
