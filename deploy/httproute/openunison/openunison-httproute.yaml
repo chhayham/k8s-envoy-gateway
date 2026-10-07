@@ -1,27 +1,27 @@
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: openunison
-  namespace: openunison
-spec:
-  parentRefs:
-    - group: gateway.networking.k8s.io
-      kind: Gateway
-      name: envoy-gateway
-      namespace: envoy-gateway-system
-      sectionName: http
-  hostnames:
-    - "k8sou.localhost"
-  rules:
-    - matches:
-        - path:
-            type: PathPrefix
-            value: /
-      backendRefs:
-        - name: ouhtml-openunison-portal
-          port: 8080
-          namespace: openunison
-          group: ''
-          kind: Service 
-          weight: 1
+# apiVersion: gateway.networking.k8s.io/v1
+# kind: HTTPRoute
+# metadata:
+#   name: openunison
+#   namespace: openunison
+# spec:
+#   parentRefs:
+#     - group: gateway.networking.k8s.io
+#       kind: Gateway
+#       name: envoy-gateway
+#       namespace: envoy-gateway-system
+#       sectionName: http
+#   hostnames:
+#     - "k8sou.localhost"
+#   rules:
+#     - matches:
+#         - path:
+#             type: PathPrefix
+#             value: /
+#       backendRefs:
+#         - name: ouhtml-openunison-portal
+#           port: 8080
+#           namespace: openunison
+#           group: ''
+#           kind: Service 
+#           weight: 1
           
