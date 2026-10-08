@@ -12,6 +12,7 @@ metadata:
   namespace: envoy-gateway-system
   annotations:
     cert-manager.io/cluster-issuer: my-ca-issuer
+    cert-manager.io/common-name: "localhost"
 spec:
   gatewayClassName: envoy
   listeners:
