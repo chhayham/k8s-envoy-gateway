@@ -25,7 +25,7 @@ spec:
     - name: https
       protocol: HTTPS
       port: 443
-      hostname: '*.localhost'
+      hostname: localhost
       allowedRoutes:
         namespaces:
           from: All
@@ -34,4 +34,4 @@ spec:
         certificateRefs:    
           - name: localhost-tls
             kind: Secret 
-            group: ""
+            # group: ""
