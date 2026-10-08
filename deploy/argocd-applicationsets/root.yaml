@@ -158,21 +158,19 @@ spec:
         repoURL: https://github.com/chhayham/k8s-envoy-gateway
         revision: 2026-10-02-83df44 #main
         files:
-        - path: deploy/argocd-applications/*/*
-        - path: deploy/argocd-applications/*/''
-          exclude: true
+        - path: deploy/argocd-applications/*/resources
   template:
     metadata:
-      name: '{{.path.basename}}-resources'
+      name: '{{index .path.segments 2}}-resources'
       namespace: argocd
     spec:
       project: default
       source:
         repoURL: https://github.com/chhayham/k8s-envoy-gateway
         targetRevision: 2026-10-02-83df44 #main
-        path: '{{index .path.segments 1}}/*'
+        path: '{{.path.path}}'
       destination:
-        namespace: '{{.path.basename}}'
+        namespace: '{{index .path.segments 2}}'
         server: https://kubernetes.default.svc
       syncPolicy:
         syncOptions:
