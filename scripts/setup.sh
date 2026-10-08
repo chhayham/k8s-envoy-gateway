@@ -83,6 +83,7 @@ helm upgrade --install argocd argo/argo-cd \
     --namespace "$ARGO_NS" \
     --create-namespace \
     -f deploy/argocd/values.yaml \
+    --set "configs.clusterCredentials.in-cluster.annotations.metadata\\.demo\\.io/ghapp-client-secret=${GITHUB_SECRET_ID}" \
     --wait
 
 echo "✓ ArgoCD deployed"

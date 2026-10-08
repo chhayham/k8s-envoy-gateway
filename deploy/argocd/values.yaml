@@ -5,14 +5,14 @@ configs:
   params:
     server.insecure: true  # HTTPS backend
 
-  # cm:
-  #   repositories: |
-  #     - url: oci://docker.io/envoyproxy
-  #       name: envoyproxy
-  #     - url: quay.io/jetstack/charts
-  #       name: cert-manager
-  #     - url: oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack
-  #       name: kube-prometheus-stack
+  clusterCredentials:      
+    in-cluster:
+      server: https://kubernetes.default.svc
+      annotations:
+        metadata.demo.io/ghapp-client-secret: ''
+      config:
+        tlsClientConfig:
+          insecure: false
 
 dex:
   enabled: false
