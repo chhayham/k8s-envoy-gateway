@@ -110,7 +110,7 @@ kubectl get applicationsets.argoproj.io cluster-addons -n "$ARGO_NS" -o wide
 echo ""
 echo "Deploying Openunison secret..."
 # dependancy:  export GITHUB_CLIENT_SECRET=***
-kubectl apply -f deploy/argocd-applications/openunison/secret/manifest.yaml --dry-run=client -o yaml | envsubst | kubectl apply -f -
+kubectl apply -f deploy/argocd-applications/openunison/resources/manifest.yaml --dry-run=client -o yaml | envsubst | kubectl apply -f -
 
 
 echo ""
