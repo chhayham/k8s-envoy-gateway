@@ -33,4 +33,4 @@ spec:
         certificateRefs:    
           - name: localhost-tls
             kind: Secret 
-            group: "core"
+            group: ""
