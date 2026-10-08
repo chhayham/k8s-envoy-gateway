@@ -30,6 +30,7 @@ spec:
         namespaces:
           from: All
       tls:
+        mode: Terminate
         certificateRefs:    
           - name: localhost-tls
             kind: Secret 
