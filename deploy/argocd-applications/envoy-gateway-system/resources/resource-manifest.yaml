@@ -28,7 +28,8 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
-      certificateRefs:    
-        - name: localhost-tls
-          kind: Secret 
-          group: "core"
+      tls:
+        certificateRefs:    
+          - name: localhost-tls
+            kind: Secret 
+            group: "core"
