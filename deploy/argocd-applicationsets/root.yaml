@@ -62,6 +62,7 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
+          - RespectIgnoreDifferences=true
 ---
 # Deploy gatewayclass, gateway, and httproute for envoy gateway
 # Todo: create helm chart for gatewayclass and gateway?  Then it can be added to addons applicationset
