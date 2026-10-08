@@ -158,7 +158,7 @@ spec:
         repoURL: https://github.com/chhayham/k8s-envoy-gateway
         revision: 2026-10-02-83df44 #main
         files:
-        - path: deploy/argocd-applications/*/resources
+        - path: deploy/argocd-applications/*/resources/*.yaml
   template:
     metadata:
       name: '{{index .path.segments 2}}-resources'
