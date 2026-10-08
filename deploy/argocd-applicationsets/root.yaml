@@ -159,6 +159,8 @@ spec:
         revision: 2026-10-02-83df44 #main
         files:
         - path: deploy/argocd-applications/*/*
+        - path: deploy/argocd-applications/*/''
+          exclude: true
   template:
     metadata:
       name: '{{.path.basename}}-resources'
@@ -168,7 +170,7 @@ spec:
       source:
         repoURL: https://github.com/chhayham/k8s-envoy-gateway
         targetRevision: 2026-10-02-83df44 #main
-        path: '{{.path.path}}/*'
+        path: '{{index .path.segments 1}}/*'
       destination:
         namespace: '{{.path.basename}}'
         server: https://kubernetes.default.svc
