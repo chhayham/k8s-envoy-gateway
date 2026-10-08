@@ -11,7 +11,7 @@ metadata:
   name: envoy-gateway
   namespace: envoy-gateway-system
   annotations:
-    cert-manager.io/cluster-issuer: bootstrap-selfsigned-issuer #my-ca-issuer
+    cert-manager.io/cluster-issuer: my-ca-issuer
     cert-manager.io/common-name: "localhost"
 spec:
   gatewayClassName: envoy
@@ -32,6 +32,6 @@ spec:
       tls:
         mode: Terminate
         certificateRefs:    
-          - name: envoy-gateway
+          - name: envoy-tls
             kind: Secret 
             group: ""
