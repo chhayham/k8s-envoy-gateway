@@ -72,7 +72,7 @@ addon:
         web_service_name: kubernetes-dashboard-web
         enabled: true
       certs:
-        use_k8s_cm: false
+        use_k8s_cm: true
 
       trusted_certs: []
 
@@ -113,7 +113,7 @@ addon:
         ca_secret_name: ou-tls-certificate
 
       network_policies:
-        enabled: true
+        enabled: false
         ingress:
           enabled: true
           labels: []
@@ -197,7 +197,7 @@ addon:
               value: "amq-server"
         keys: []
         naas:
-          groupsFromMyVD: false
+          groupsFromMyVD: true
           forms:
             new_namespace:
               use_default: true
