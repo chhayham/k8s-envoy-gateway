@@ -49,10 +49,10 @@ echo "=== Setting up Minikube Cluster ==="
 
 if [ "$MINIKUBE_EXISTS" = "true" ]; then
     echo "Minikube cluster 'demo' already exists. Starting it..."
-    minikube start -p demo --driver=podman
+    minikube start -p demo --driver=podman --cpus=6 --memory=16g
 else
     echo "Creating new Minikube cluster 'demo' with 3 nodes..."
-    minikube start -p demo --driver=podman --nodes=3
+    minikube start -p demo --driver=podman --nodes=3 --cpus=6 --memory=16g
 fi
 
 echo "✓ Minikube cluster ready"
