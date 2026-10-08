@@ -10,6 +10,8 @@ kind: Gateway
 metadata:
   name: envoy-gateway
   namespace: envoy-gateway-system
+  annotations:
+    cert-manager.io/cluster-issuer: my-ca-issuer
 spec:
   gatewayClassName: envoy
   listeners:
@@ -22,6 +24,11 @@ spec:
     - name: https
       protocol: HTTPS
       port: 443
+      hostname: '*.localhost'
       allowedRoutes:
         namespaces:
           from: All
+      certificateRefs:    
+        - name: localhost-tls
+          kind: Secret 
+          group: "core"
