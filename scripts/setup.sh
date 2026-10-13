@@ -49,10 +49,10 @@ echo "=== Setting up Minikube Cluster ==="
 
 if [ "$MINIKUBE_EXISTS" = "true" ]; then
     echo "Minikube cluster 'demo' already exists. Starting it..."
-    minikube start -p demo --driver=podman --cpus=6 --memory=16g
+    minikube start -p demo --cpus=6 --memory=16g --driver qemu --network socket_vmnet
 else
     echo "Creating new Minikube cluster 'demo' with 3 nodes..."
-    minikube start -p demo --driver=podman --nodes=3 --cpus=6 --memory=16g
+    minikube start -p demo --nodes=3 --cpus=6 --memory=16g --driver qemu --network socket_vmnet
 fi
 
 echo "✓ Minikube cluster ready"
@@ -84,6 +84,9 @@ helm upgrade --install argocd argo/argo-cd \
     --create-namespace \
     -f deploy/argocd/values.yaml \
     --set "configs.clusterCredentials.in-cluster.annotations.metadata\\.demo\\.io/ghapp-client-secret=${GITHUB_SECRET_ID}" \
+    --set server.service.type=NodePort \
+    --set server.service.nodePortHttp=30080 \
+    --set server.service.nodePortHttps=30443 \
     --wait
 
 echo "✓ ArgoCD deployed"
@@ -94,7 +97,7 @@ echo "=== Setting up ApplicationSet ==="
 # Check if ApplicationSet exists and decide whether to edit or apply
 if kubectl get applicationsets.argoproj.io cluster-addons -n "$ARGO_NS" --no-headers &> /dev/null; then
     echo "ApplicationSet 'cluster-addons' already exists in namespace '$ARGO_NS'"
-else
+elses
     echo "ApplicationSet 'cluster-addons' not found - creating from manifest..."
     kubectl apply -f deploy/argocd-applicationsets/root.yaml
     kubectl apply -f deploy/argocd-applicationsets/openunison.yaml
