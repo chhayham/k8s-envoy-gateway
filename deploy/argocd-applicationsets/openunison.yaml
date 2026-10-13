@@ -13,7 +13,7 @@ spec:
     helm:
       releaseName: openunison
       valueFiles:
-      - $values/userauth/values.yaml
+      - $values/deploy/helm-values/userauth/values.yaml
     repoURL: https://nexus.tremolo.io/repository/helm
     targetRevision: 3.0.32
 
@@ -29,7 +29,7 @@ spec:
     helm:
       releaseName: orchestra-login-portal
       valueFiles:
-      - $values/userauth/values.yaml
+      - $values/deploy/helm-values/userauth/values.yaml
     repoURL: https://nexus.tremolo.io/repository/helm
     targetRevision: 2.3.99
 
