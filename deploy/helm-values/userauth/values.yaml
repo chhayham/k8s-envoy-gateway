@@ -16,6 +16,22 @@ network:
         "name": "enovy-gateway",
         "namespace": "envoy-gateway-system"
       }
+  gatewayapi:
+    class: envoy
+    gateway:
+      # disable the creation of the Gateway object
+      create: false
+      # specify the parent_refs for the web components of OpenUnison
+      parent_refs:
+      - name: enovy-gateway
+        namespace: envoy-gateway-system
+        sectionName: https
+      # specify the parent_refs for the kube-oidc-proxy
+      kube_oidcproxy_parent_refs:
+      - name: enovy-gateway
+        namespace: envoy-gateway-system
+        sectionName: kube-oidc-proxy
+
 
 cert_template:
   ou: "Kubernetes"

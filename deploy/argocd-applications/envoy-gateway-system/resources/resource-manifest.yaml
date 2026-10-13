@@ -35,3 +35,12 @@ spec:
           - name: envoy-tls
             kind: Secret 
             group: ""
+    - allowedRoutes:
+      namespaces:
+        from: Same
+      hostname: k8sapi.localhost
+      name: kube-oidc-proxy
+      port: 443
+      protocol: TLS
+      tls:
+        mode: Passthrough
