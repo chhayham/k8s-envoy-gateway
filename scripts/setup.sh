@@ -49,10 +49,12 @@ echo "=== Setting up Minikube Cluster ==="
 
 if [ "$MINIKUBE_EXISTS" = "true" ]; then
     echo "Minikube cluster 'demo' already exists. Starting it..."
-    minikube start -p demo --cpus=6 --memory=16g --driver qemu --network socket_vmnet
+    # minikube start -p demo --cpus=6 --memory=16g --driver qemu --network socket_vmnet
+    minikube start -p demo --driver qemu --network socket_vmnet
 else
     echo "Creating new Minikube cluster 'demo' with 3 nodes..."
-    minikube start -p demo --nodes=3 --cpus=6 --memory=16g --driver qemu --network socket_vmnet
+    # minikube start -p demo --nodes=3 --cpus=6 --memory=16g --driver qemu --network socket_vmnet
+    minikube start -p demo --nodes=3 --driver qemu --network socket_vmnet
 fi
 
 echo "✓ Minikube cluster ready"
@@ -97,7 +99,7 @@ echo "=== Setting up ApplicationSet ==="
 # Check if ApplicationSet exists and decide whether to edit or apply
 if kubectl get applicationsets.argoproj.io cluster-addons -n "$ARGO_NS" --no-headers &> /dev/null; then
     echo "ApplicationSet 'cluster-addons' already exists in namespace '$ARGO_NS'"
-elses
+else
     echo "ApplicationSet 'cluster-addons' not found - creating from manifest..."
     kubectl apply -f deploy/argocd-applicationsets/root.yaml
     kubectl apply -f deploy/argocd-applicationsets/openunison.yaml
