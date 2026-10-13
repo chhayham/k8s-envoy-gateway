@@ -4,7 +4,7 @@ network:
   api_server_host: "k8sapi.localhost"
   session_inactivity_timeout_seconds: 900
   k8s_url: https://192.168.2.130:6443
-  force_redirect_to_tls: false
+  force_redirect_to_tls: true
   createIngressCertificate: true
   ingress_type: gatewayapi
   ingress_annotations: {}
