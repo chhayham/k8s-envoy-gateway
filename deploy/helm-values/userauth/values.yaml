@@ -15,7 +15,9 @@ network:
       create: false
       # specify the parent_refs for the web components of OpenUnison
       parent_refs:
-      - name: enovy-gateway
+      - group: gateway.networking.k8s.io
+        kind: Gateway
+        name: envoy-gateway
         namespace: envoy-gateway-system
         sectionName: http
       # specify the parent_refs for the kube-oidc-proxy
