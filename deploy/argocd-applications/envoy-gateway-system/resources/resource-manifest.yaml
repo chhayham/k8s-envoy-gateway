@@ -44,16 +44,3 @@ spec:
       protocol: TLS
       tls:
         mode: Passthrough
-    - name: test
-      protocol: HTTPS
-      port: 443
-      hostname: "*.svc.cluster.local"
-      allowedRoutes:
-        namespaces:
-          from: All
-      tls:
-        mode: Terminate
-        certificateRefs:    
-          - name: envoy-tls
-            kind: Secret 
-            group: ""
