@@ -25,7 +25,7 @@ network:
       parent_refs:
       - name: enovy-gateway
         namespace: envoy-gateway-system
-        sectionName: https
+        sectionName: http
       # specify the parent_refs for the kube-oidc-proxy
       kube_oidcproxy_parent_refs:
       - name: enovy-gateway
