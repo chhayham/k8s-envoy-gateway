@@ -19,7 +19,7 @@ network:
         kind: Gateway
         name: envoy-gateway
         namespace: envoy-gateway-system
-        sectionName: http
+        sectionName: https
       # specify the parent_refs for the kube-oidc-proxy
       kube_oidcproxy_parent_refs:
       - group: gateway.networking.k8s.io
