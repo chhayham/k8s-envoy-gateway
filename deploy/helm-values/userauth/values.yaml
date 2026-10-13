@@ -6,8 +6,16 @@ network:
   k8s_url: https://192.168.2.130:6443
   force_redirect_to_tls: false
   createIngressCertificate: true
-  ingress_type: nginx
-  ingress_annotations: {}
+  ingress_type: gatewayapi
+  ingress_annotations:
+    gateway.networking.k8s.io/gateway-name: "envoy-gateway"
+    gateway.networking.k8s.io/parent-ref: >-
+      {
+        "group": "gateway.networking.k8s.io",
+        "kind": "Gateway",
+        "name": "enovy-gateway",
+        "namespace": "envoy-gateway-system"
+      }
 
 cert_template:
   ou: "Kubernetes"
@@ -35,7 +43,7 @@ dashboard:
   new: true
 
 certs:
-  use_k8s_cm: false
+  use_k8s_cm: true
 
 trusted_certs: []
 
@@ -79,7 +87,7 @@ oidc:
 network_policies:
   enabled: false
   ingress:
-    enabled: true
+    enabled: false
     labels:
       app.kubernetes.io/name: ingress-nginx
   monitoring:

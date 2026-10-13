@@ -112,6 +112,7 @@ kubectl get applicationsets.argoproj.io cluster-addons -n "$ARGO_NS" -o wide
 echo ""
 echo "Deploying Openunison secret..."
 # dependancy:  export GITHUB_CLIENT_SECRET=***
+kubectl create namespace openunison 2>/dev/null || kubectl get namespace openunison
 kubectl apply -f tmp/openunison/resources/manifest.yaml --dry-run=client -o yaml | envsubst | kubectl apply -f -
 
 
