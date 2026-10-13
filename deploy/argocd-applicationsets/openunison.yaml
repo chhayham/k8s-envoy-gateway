@@ -1,0 +1,44 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openunison-login
+  namespace: argocd
+spec:
+  destination:
+    namespace: openunison
+    server: 'https://kubernetes.default.svc'
+  project: default
+  sources:
+  - chart: openunison-operator
+    helm:
+      releaseName: openunison
+      valueFiles:
+      - $values/userauth/values.yaml
+    repoURL: https://nexus.tremolo.io/repository/helm
+    targetRevision: 3.0.32
+
+  - chart: orchestra
+    helm:
+      releaseName: orchestra
+      valueFiles:
+      - $values/deploy/helm-values/userauth/values.yaml
+    repoURL: https://nexus.tremolo.io/repository/helm
+    targetRevision: 3.1.57
+
+  - chart: orchestra-login-portal
+    helm:
+      releaseName: orchestra-login-portal
+      valueFiles:
+      - $values/userauth/values.yaml
+    repoURL: https://nexus.tremolo.io/repository/helm
+    targetRevision: 2.3.99
+
+  # - repoURL: https://github.com/chhayham/k8s-envoy-gateway
+  #   revision: 2026-10-02-83df44
+  #   path: deploy/helm-values/userauth
+  - ref: values
+    repoURL: https://github.com/chhayham/k8s-envoy-gateway
+    revision: 2026-10-02-83df44
+  syncPolicy:
+    syncOptions:
+    - RespectIgnoreDifferences=true
