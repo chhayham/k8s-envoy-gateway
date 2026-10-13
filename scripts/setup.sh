@@ -20,7 +20,7 @@ if ! command -v kubectl &> /dev/null; then
     exit 1
 fi
 
-echo "✓ kubectl found: $(kubectl version --client --short 2>/dev/null || echo 'version unknown')"
+echo "✓ kubectl found: $(kubectl version --client | grep "Client" | awk -F': ' '{print $2}' 2>/dev/null || echo 'version unknown')"
 
 # Check if minikube is available
 if ! command -v minikube &> /dev/null; then
@@ -97,6 +97,7 @@ if kubectl get applicationsets.argoproj.io cluster-addons -n "$ARGO_NS" --no-hea
 else
     echo "ApplicationSet 'cluster-addons' not found - creating from manifest..."
     kubectl apply -f deploy/argocd-applicationsets/root.yaml
+    kubectl apply -f deploy/argocd-applicationsets/openunison.yaml
 fi
 
 # Wait for ArgoCD components to be ready
@@ -111,7 +112,7 @@ kubectl get applicationsets.argoproj.io cluster-addons -n "$ARGO_NS" -o wide
 echo ""
 echo "Deploying Openunison secret..."
 # dependancy:  export GITHUB_CLIENT_SECRET=***
-kubectl apply -f deploy/argocd-applications/openunison/resources/manifest.yaml --dry-run=client -o yaml | envsubst | kubectl apply -f -
+kubectl apply -f tmp/openunison/resources/manifest.yaml --dry-run=client -o yaml | envsubst | kubectl apply -f -
 
 
 echo ""

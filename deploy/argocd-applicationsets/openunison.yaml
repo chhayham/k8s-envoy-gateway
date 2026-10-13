@@ -34,11 +34,12 @@ spec:
     targetRevision: 2.3.99
 
   # - repoURL: https://github.com/chhayham/k8s-envoy-gateway
-  #   revision: 2026-10-02-83df44
+  #   targetRevision: 2026-10-02-83df44
   #   path: deploy/helm-values/userauth
   - ref: values
     repoURL: https://github.com/chhayham/k8s-envoy-gateway
-    revision: 2026-10-02-83df44
+    targetRevision: 2026-10-02-83df44
   syncPolicy:
     syncOptions:
+    - CreateNamespace=true
     - RespectIgnoreDifferences=true
