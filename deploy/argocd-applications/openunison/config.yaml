@@ -14,20 +14,29 @@ addon:
         k8s_url: "https://kubernetes.default.svc:6443"
         force_redirect_to_tls: true
         createIngressCertificate: true
-        ingress_type: gatewayapi
-        ingress_annotations:
-          gateway.networking.k8s.io/gateway-name: "envoy-gateway"
-          gateway.networking.k8s.io/parent-ref: >-
-            {
-              "group": "gateway.networking.k8s.io",
-              "kind": "Gateway",
-              "name": "envoy-gateway",
-              "namespace": "envoy-gateway-system"
-            }
-        host_aliases:
-          - ip: "10.102.132.220"
-            hostnames:
-              - "k8sou.localhost"
+      host_aliases:
+        - ip: "10.102.132.220"
+          hostnames:
+            - "k8sou.localhost"
+      gatewayapi:
+        class: envoy
+        gateway:
+          # disable the creation of the Gateway object
+          create: false
+          # specify the parent_refs for the web components of OpenUnison
+          parent_refs:
+          - group: gateway.networking.k8s.io
+            kind: Gateway
+            name: envoy-gateway
+            namespace: envoy-gateway-system
+            sectionName: https
+          # specify the parent_refs for the kube-oidc-proxy
+          kube_oidcproxy_parent_refs:
+          - group: gateway.networking.k8s.io
+            kind: Gateway
+            name: envoy-gateway
+            namespace: envoy-gateway-system
+            sectionName: kube-oidc-proxy
       cert_template:
         ou: "Kubernetes"
         o: "MyOrg"
