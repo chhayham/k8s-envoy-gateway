@@ -49,12 +49,11 @@ echo "=== Setting up Minikube Cluster ==="
 
 if [ "$MINIKUBE_EXISTS" = "true" ]; then
     echo "Minikube cluster 'demo' already exists. Starting it..."
-    # minikube start -p demo --cpus=6 --memory=16g --driver qemu --network socket_vmnet
-    minikube start -p demo --driver qemu --network socket_vmnet
+    minikube start -p demo --cpus=4 --memory=8g --driver podman
 else
     echo "Creating new Minikube cluster 'demo' with 3 nodes..."
-    # minikube start -p demo --nodes=3 --cpus=6 --memory=16g --driver qemu --network socket_vmnet
-    minikube start -p demo --nodes=3 --driver qemu --network socket_vmnet
+    minikube start -p demo --nodes=2 --cpus=4 --memory=8g --driver podman \
+        --extra-config=apiserver.oidc-issuer-url=https://192.168.58.2
 fi
 
 echo "✓ Minikube cluster ready"
@@ -86,9 +85,6 @@ helm upgrade --install argocd argo/argo-cd \
     --create-namespace \
     -f deploy/argocd/values.yaml \
     --set "configs.clusterCredentials.in-cluster.annotations.metadata\\.demo\\.io/ghapp-client-secret=${GITHUB_SECRET_ID}" \
-    --set server.service.type=NodePort \
-    --set server.service.nodePortHttp=30080 \
-    --set server.service.nodePortHttps=30443 \
     --wait
 
 echo "✓ ArgoCD deployed"

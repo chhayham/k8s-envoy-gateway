@@ -1,5 +1,5 @@
 network:
-  openunison_host: "openunison-orchesra.openunison.svc.cluster.local"
+  openunison_host: "k8sou.localhost"
   dashboard_host: "k8sdb.localhost"
   api_server_host: "k8sapi.localhost"
   session_inactivity_timeout_seconds: 900
@@ -19,7 +19,7 @@ network:
         kind: Gateway
         name: envoy-gateway
         namespace: envoy-gateway-system
-        sectionName: test
+        sectionName: https
       # specify the parent_refs for the kube-oidc-proxy
       kube_oidcproxy_parent_refs:
       - group: gateway.networking.k8s.io
