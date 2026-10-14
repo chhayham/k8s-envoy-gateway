@@ -24,6 +24,10 @@ addon:
               "name": "envoy-gateway",
               "namespace": "envoy-gateway-system"
             }
+        host_aliases:
+          - ip: "10.102.132.220"
+            hostnames:
+              - "k8sou.localhost"
       cert_template:
         ou: "Kubernetes"
         o: "MyOrg"
@@ -50,7 +54,7 @@ addon:
         prometheus_service_account: system:serviceaccount:monitoring:prometheus-k8s
       oidc:
         client_id: openunison
-        issuer: https://k8sou.localhost/auth/idp/k8sIdp
+        issuer: https://openunison-orchestra.openunison.svc:443/auth/idp/k8sIdp
         user_in_idtoken: false
         domain: ""
         scopes: openid email profile groups
