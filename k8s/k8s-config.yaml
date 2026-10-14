@@ -1,0 +1,17 @@
+# Kubernetes Cluster Configuration for OpenUnison OIDC Setup
+# This file contains cluster-wide configuration resources
+
+---
+# OpenUnison Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openunison
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/managed-by: kubectl
+    kubernetes.io/metadata.name: openunison
+
+---
+# Gateway API CRDs (v1.6.1)
+# Full Gateway API v1.6.1 CRDs are in deploy/gateway-api-crd/gateway-api-crds.yaml

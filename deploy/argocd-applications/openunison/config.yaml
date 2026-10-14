@@ -1,0 +1,93 @@
+# OpenUnison ArgoCD Application Configuration
+addon:
+  - name: openunison
+    chart: openunison-operator
+    repoURL: https://nexus.tremolo.io/repository/helm
+    targetRevision: 3.0.31
+    namespace: openunison
+    helmValues: |
+      network:
+        openunison_host: "k8sou.localhost"
+        dashboard_host: "k8sdb.localhost"
+        api_server_host: "k8sapi.localhost"
+        session_inactivity_timeout_seconds: 900
+        k8s_url: "https://kubernetes.default.svc:6443"
+        force_redirect_to_tls: true
+        createIngressCertificate: true
+        ingress_type: gatewayapi
+        ingress_annotations:
+          gateway.networking.k8s.io/gateway-name: "envoy-gateway"
+          gateway.networking.k8s.io/parent-ref: >-
+            {
+              "group": "gateway.networking.k8s.io",
+              "kind": "Gateway",
+              "name": "envoy-gateway",
+              "namespace": "envoy-gateway-system"
+            }
+      cert_template:
+        ou: "Kubernetes"
+        o: "MyOrg"
+        l: "demo"
+        st: "WA"
+        c: "United States"
+      myvd_config_path: "WEB-INF/myvd.conf"
+      k8s_cluster_name: demo
+      enable_impersonation: true
+      impersonation:
+        use_jetstack: true
+        explicit_certificate_trust: true
+      dashboard:
+        namespace: "kubernetes-dashboard"
+        cert_name: "kubernetes-dashboard-certs"
+        label: "k8s-app=kubernetes-dashboard"
+        service_name: kubernetes-dashboard
+        require_session: true
+        new: true
+      certs:
+        use_k8s_cm: true
+      trusted_certs: []
+      monitoring:
+        prometheus_service_account: system:serviceaccount:monitoring:prometheus-k8s
+      oidc:
+        client_id: openunison
+        issuer: https://k8sou.localhost/auth/idp/k8sIdp
+        user_in_idtoken: false
+        domain: ""
+        scopes: openid email profile groups
+        claims:
+          sub: sub
+          email: email
+          given_name: given_name
+          family_name: family_name
+          display_name: name
+          groups: groups
+      network_policies:
+        enabled: false
+        ingress:
+          enabled: false
+          labels:
+            app.kubernetes.io/name: ingress-nginx
+        monitoring:
+          enabled: true
+          labels:
+            app.kubernetes.io/name: monitoring
+        apiserver:
+          enabled: false
+          labels:
+            app.kubernetes.io/name: kube-system
+      services:
+        enable_tokenrequest: false
+        token_request_audience: api
+        token_request_expiration_seconds: 600
+        node_selectors: []
+      openunison:
+        auto_timestamp: false
+        force_update: initial-deployment
+        replicas: 1
+        non_secret_data:
+          K8S_DB_SSO: oidc
+          PROMETHEUS_SERVICE_ACCOUNT: system:serviceaccount:monitoring:prometheus-k8s
+          SHOW_PORTAL_ORGS: "false"
+        secrets: []
+        enable_provisioning: false
+        use_standard_jit_workflow: true

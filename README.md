@@ -114,7 +114,20 @@ addon:
 - Loki: `http://loki.localhost`
 - openunison: `http://openunison.localhost`
 
-## Key Configuration Notes
+## OpenUnison Configuration
+
+OpenUnison is configured as the OIDC provider for Kubernetes authentication:
+
+- **OpenUnison Host:** `k8sou.localhost`
+- **Dashboard Host:** `k8sdb.localhost`
+- **API Server Host:** `k8sapi.localhost`
+
+### Accessing OpenUnison
+1. Run `sudo minikube tunnel -p demo` in a separate terminal
+2. Open `https://k8sou.localhost` in your browser
+3. Login with your Kubernetes credentials
+
+### Key Configuration Notes
 
 - **Gateway API version:** `v1` (`Gateway`, `HTTPRoute`)
 - **Envoy Gateway CRDs:** Installed via `gateway-crds-helm` chart with experimental channel
@@ -122,6 +135,19 @@ addon:
 - **Envoy Gateway listener:** Allows routes from all namespaces (`allowedRoutes.namespaces.from: All`)
 - **All applications:** Have `automated: true` with `prune: true` and `selfHeal: true`
 - **Resource limits:** Set for most applications (CPU/memory)
+
+### OpenUnison Troubleshooting
+
+```bash
+# Check OpenUnison deployment status
+kubectl -n openunison get pods,svc,httproute
+
+# Check kube-oidc-proxy logs
+kubectl -n openunison logs deployment/kube-oidc-proxy-orchestra
+
+# Verify HTTPRoute status
+kubectl get httproute -A -o wide
+```
 
 ## Troubleshooting
 
