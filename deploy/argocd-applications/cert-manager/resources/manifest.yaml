@@ -15,6 +15,9 @@ metadata:
 spec:
   isCA: true
   commonName: root-selfsigned-ca
+  dnsNames:
+  - '*.localhost'
+  - '://localhost'
   subject:
     organizations:
       - MyOrg
