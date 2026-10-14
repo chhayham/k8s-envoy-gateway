@@ -49,7 +49,8 @@ echo "=== Setting up Minikube Cluster ==="
 
 if [ "$MINIKUBE_EXISTS" = "true" ]; then
     echo "Minikube cluster 'demo' already exists. Starting it..."
-    minikube start -p demo --cpus=4 --memory=8g --driver podman
+    minikube start -p demo --cpus=4 --memory=8g --driver podman \
+        --extra-config=apiserver.oidc-issuer-url=https://192.168.58.2
 else
     echo "Creating new Minikube cluster 'demo' with 3 nodes..."
     minikube start -p demo --nodes=2 --cpus=4 --memory=8g --driver podman \

@@ -45,6 +45,9 @@ enable_impersonation: true
 impersonation:
   use_jetstack: true
   explicit_certificate_trust: true
+  # Add or append the bind-address argument if your chart supports extraArgs
+  extraArgs:
+    - --bind-address=0.0.0.0
 
 dashboard:
   namespace: "kubernetes-dashboard"
