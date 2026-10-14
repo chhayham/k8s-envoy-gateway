@@ -24,6 +24,16 @@ network:
         name: envoy-gateway
         namespace: envoy-gateway-system
         sectionName: https
+      # k8sou.localhost also attaches to the 'ou-https' listener, which
+      # terminates TLS with ou-tls-certificate — the same certificate
+      # kube-oidc-proxy uses as its OIDC CA file. Required for the proxy
+      # to validate the IdP from inside the cluster (glibc resolves
+      # *.localhost to 127.0.0.1, see setup.sh OIDC wiring).
+      - group: gateway.networking.k8s.io
+        kind: Gateway
+        name: envoy-gateway
+        namespace: envoy-gateway-system
+        sectionName: ou-https
       # specify the parent_refs for the kube-oidc-proxy
       kube_oidcproxy_parent_refs:
       - group: gateway.networking.k8s.io

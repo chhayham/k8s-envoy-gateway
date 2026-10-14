@@ -35,12 +35,54 @@ spec:
           - name: envoy-tls
             kind: Secret 
             group: ""
+    # OpenUnison IdP (k8sou.localhost): terminates TLS with
+    # ou-tls-certificate (managed by OpenUnison in the openunison ns).
+    # kube-oidc-proxy uses this exact certificate as its OIDC CA file, so
+    # the proxy can validate the IdP from inside the cluster. A dedicated
+    # listener is required because the shared 'https' listener serves the
+    # cert-manager 'envoy-tls' certificate instead.
+    - name: ou-https
+      protocol: HTTPS
+      port: 443
+      hostname: k8sou.localhost
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: ou-tls-certificate
+            kind: Secret
+            group: ""
+            namespace: openunison
     - allowedRoutes:
         namespaces:
-          from: Same
+          # 'All' is required: the OpenUnison TLSRoute for this listener
+          # lives in the openunison namespace, not envoy-gateway-system.
+          from: All
       hostname: k8sapi.localhost
       name: kube-oidc-proxy
       port: 443
       protocol: TLS
       tls:
         mode: Passthrough
+---
+# Authorize the gateway (consumer) to reference the OpenUnison TLS secret
+# (provider) from another namespace for the 'ou-https' listener.
+apiVersion: gateway.networking.k8s.io/v1
+kind: ReferenceGrant
+metadata:
+  name: openunison-ou-tls-certificate
+  namespace: openunison
+spec:
+  # Note: Gateway API v1.3+ ReferenceGrant 'from' entries are namespace-scoped
+  # (no 'name' field). Grants: any Gateway in envoy-gateway-system may
+  # reference the listed secret.
+  from:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      namespace: envoy-gateway-system
+  to:
+    - group: ""
+      kind: Secret
+      name: ou-tls-certificate
