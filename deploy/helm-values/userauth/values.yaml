@@ -4,7 +4,13 @@ network:
   api_server_host: "k8sapi.localhost"
   session_inactivity_timeout_seconds: 900
   k8s_url: https://kubernetes.default.svc:6443
-  force_redirect_to_tls: true
+  # 'force_to_secure' (chart: network.force_redirect_to_tls) = true makes the
+  # current app build (1.0.53-2026100301) run TLS-ONLY: it skips binding
+  # open_port (8080) entirely, so the HTTPRoute (svc port 80 -> 8080) gets
+  # connection-reset -> envoy 503 'upstream connect error ... remote
+  # connection failure'. The gateway (ou-https listener) already terminates
+  # TLS for clients, so the app must keep its plain-HTTP 8080 connector.
+  force_redirect_to_tls: false
   createIngressCertificate: true
   ingress_type: gatewayapi
   ingress_annotations: {}
