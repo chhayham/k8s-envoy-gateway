@@ -23,17 +23,16 @@ network:
       # disable the creation of the Gateway object
       create: false
       # specify the parent_refs for the web components of OpenUnison
+      # NOTE: only the 'ou-https' listener is listed. Attaching
+      # k8sou.localhost to the shared 'https' listener as well is rejected
+      # by Envoy Gateway v1.9.x (Accepted=False, NoMatchingListenerHostname):
+      # an exact-hostname listener on a port shadows that hostname for every
+      # other listener on the same port (wildcard or catch-all alike).
       parent_refs:
-      - group: gateway.networking.k8s.io
-        kind: Gateway
-        name: envoy-gateway
-        namespace: envoy-gateway-system
-        sectionName: https
-      # k8sou.localhost also attaches to the 'ou-https' listener, which
-      # terminates TLS with ou-tls-certificate — the same certificate
-      # kube-oidc-proxy uses as its OIDC CA file. Required for the proxy
-      # to validate the IdP from inside the cluster (glibc resolves
-      # *.localhost to 127.0.0.1, see setup.sh OIDC wiring).
+      # 'ou-https' terminates TLS with ou-tls-certificate — the same
+      # certificate kube-oidc-proxy uses as its OIDC CA file. Required for
+      # the proxy to validate the IdP from inside the cluster (glibc
+      # resolves *.localhost to 127.0.0.1, see setup.sh OIDC wiring).
       - group: gateway.networking.k8s.io
         kind: Gateway
         name: envoy-gateway
