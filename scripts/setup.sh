@@ -196,6 +196,23 @@ else
             echo "WARNING: kube-oidc-proxy deployment not found (OpenUnison not synced yet?)"
             echo "         Re-run this script once the openunison app is Healthy/Synced."
         fi
+
+        # 6) Calico programmed a plain L2 (eth0) route for a node's stale /24
+        #    spec.podCIDR while IPAM allocates /26 blocks that route over
+        #    IPIP (tunl0). Cross-node pod traffic on that asymmetric path
+        #    (L2 forward, IPIP return) loses TCP SYN-ACKs, so kube-oidc-proxy
+        #    gets 'TLS handshake timeout' against the gateway when it is
+        #    scheduled on the other node. Retarget any 10.244.x pod-CIDR
+        #    route leaving via eth0 onto the IPIP tunnel (symmetric IPIP).
+        STALE_ROUTES=$(minikube ssh -p demo -- ip route 2>/dev/null | grep -E '^10\.244\..* dev eth0' || true)
+        if [ -n "$STALE_ROUTES" ]; then
+            for line in $STALE_ROUTES; do
+                cidr=$(echo "$line" | awk '{print $1}')
+                via=$(echo "$line" | awk '{print $3}')
+                minikube ssh -p demo -- sudo ip route replace "$cidr" via "$via" dev tunl0 onlink \
+                    && echo "IPIP retargeted: ${cidr} via ${via}"
+            done
+        fi
     fi
 fi
 

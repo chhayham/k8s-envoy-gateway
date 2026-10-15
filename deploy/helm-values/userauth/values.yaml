@@ -8,8 +8,13 @@ network:
   createIngressCertificate: true
   ingress_type: gatewayapi
   ingress_annotations: {}
+  # NOTE: the installed orchestra chart does NOT render 'host_aliases'.
+  # The effective wiring (k8sou.localhost -> envoy LoadBalancer ClusterIP,
+  # needed because glibc resolves *.localhost to 127.0.0.1 inside pods)
+  # is applied by scripts/setup.sh via a hostAliases patch on the
+  # kube-oidc-proxy-orchestra deployment.
   host_aliases:
-    - ip: "10.102.132.220"
+    - ip: "10.101.214.64"
       hostnames:
         - "k8sou.localhost"
   gatewayapi:

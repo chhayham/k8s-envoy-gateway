@@ -6,21 +6,21 @@ addon:
     namespace: tigera-operator
     helmValues: |
       installation:
-        kubernetesProvider: Kind
+        kubernetesProvider: Other
         cni:
           type: Calico
         calicoNetwork:
           bgp: Disabled
           ipPools:
-            - allowedUses:	
-                - Workload	
-                - Tunnel	
-              assignmentMode: Automatic	
-              blockSize: 26	
-              cidr: 10.244.0.0/16	
-              disableBGPExport: false	
-              disableNewAllocations: false	
-              encapsulation: IPIP	
-              name: default-ipv4-ippool	
-              natOutgoing: Enabled	
+            - allowedUses:
+                - Workload
+                - Tunnel
+              assignmentMode: Automatic
+              blockSize: 26
+              cidr: 172.16.0.0/16  # was 10.244.0.0/16: overlapped kindnet/kubenet node podCIDRs (10.244.x.0/24), causing L2-vs-IPIP asymmetric routes
+              disableBGPExport: false
+              disableNewAllocations: false
+              encapsulation: IPIP
+              name: default-ipv4-ippool
+              natOutgoing: Enabled
               nodeSelector: all()
