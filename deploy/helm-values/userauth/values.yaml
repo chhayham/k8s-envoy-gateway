@@ -115,7 +115,16 @@ monitoring:
 
 github:
  client_id: Iv23liFQMxQyM7HIMULO
- teams: chhayham/
+ # Authorization rule for GitHub login (GithubTeamRule, rendered as
+ # 'custom;github!<value>' in the enterprise-idp auth chain):
+ #   "org/team"  -> user must be a member of that team
+ #   "org/"      -> user must be a member of that org
+ #   "" (empty)  -> zero rule params => rule ALWAYS authorizes
+ # This is a personal GitHub account (no orgs, no teams), so the rule
+ # must be empty or every login fails with the generic
+ # 'You are not authorized for failed authentication' page.
+ # Trade-off: any user who can complete OAuth with this app may log in.
+ teams: ""
 
 #saml:
 #  idp_url: "https://portal.apps.tremolo.io/idp-test/metadata/dfbe4040-cd32-470e-a9b6-809c8f857c40"
