@@ -6,7 +6,6 @@ addon:
     namespace: tigera-operator
     helmValues: |
       installation:
-        kubernetesProvider: Other
         cni:
           type: Calico
         calicoNetwork:
