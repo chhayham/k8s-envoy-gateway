@@ -143,6 +143,12 @@ openunison:
   secrets: []
   enable_provisioning: false
   use_standard_jit_workflow: true
+  podTemplate:
+    spec:
+      hostAliases:
+      - ip: "10.102.132.220"
+        hostnames:
+        - "k8sou.localhost"
   # enable_activemq: true
   # activemq_use_pvc: true
   # role_attribute: portalGroups
