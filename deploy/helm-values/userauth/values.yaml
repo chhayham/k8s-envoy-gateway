@@ -89,22 +89,22 @@ monitoring:
 #  con_type: ldaps
 #  srv_dns: "false"
 
-oidc:
- client_id: openunison
- issuer: https://kc.labm.tremolo.dev/realms/locallab
- user_in_idtoken: false
- domain: ""
- scopes: openid email profile groups
- claims:
-   sub: sub
-   email: email
-   given_name: given_name
-   family_name: family_name
-   display_name: name
-   groups: groups
+# oidc:
+#  client_id: openunison
+#  issuer: https://kc.labm.tremolo.dev/realms/locallab
+#  user_in_idtoken: false
+#  domain: ""
+#  scopes: openid email profile groups
+#  claims:
+#    sub: sub
+#    email: email
+#    given_name: given_name
+#    family_name: family_name
+#    display_name: name
+#    groups: groups
 
-#github:
-#  client_id: d85d77c55a08c9bcbb15
+github:
+ client_id: Iv23liFQMxQyM7HIMULO
 #  teams: TremoloSecurity/
 
 #saml:
