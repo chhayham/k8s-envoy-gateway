@@ -16,7 +16,7 @@ addon:
                 - Tunnel
               assignmentMode: Automatic
               blockSize: 26
-              cidr: 172.16.0.0/16  # was 10.244.0.0/16: overlapped kindnet/kubenet node podCIDRs (10.244.x.0/24), causing L2-vs-IPIP asymmetric routes
+              cidr: 10.244.0.0/16  # must stay within the minikube/kindnet platform pod network (node podCIDRs 10.244.x.0/24); tigera v3.33 rejects out-of-range CIDRs. kindnet-era legacy pods are covered by the IPIP route retarget in scripts/setup.sh
               disableBGPExport: false
               disableNewAllocations: false
               encapsulation: IPIP
