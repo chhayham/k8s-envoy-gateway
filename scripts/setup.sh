@@ -62,7 +62,10 @@ MINIKUBE_OIDC_ARGS=(
 if [ "$MINIKUBE_EXISTS" = "true" ]; then
     # API server extra-config is baked in at cluster creation time and cannot
     # be changed on an existing cluster.
-    if minikube ssh -p demo -- ps -ef 2>/dev/null | grep kube-apiserver | grep -q 'oidc-issuer-url'; then
+    # NB: 'ps -ww' (unlimited width) is required — the apiserver command line
+    # is long and plain 'ps -ef' truncates it at the terminal width, hiding
+    # the oidc-* flags and breaking this check.
+    if minikube ssh -p demo -- ps -ww -ef 2>/dev/null | grep kube-apiserver | grep -q 'oidc-issuer-url'; then
         echo "Minikube cluster 'demo' already exists (OIDC configured). Starting it..."
         minikube start -p demo --cpus=4 --memory=8g --driver podman
     else

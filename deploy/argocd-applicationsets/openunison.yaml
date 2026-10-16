@@ -40,6 +40,11 @@ spec:
     repoURL: https://github.com/chhayham/k8s-envoy-gateway
     targetRevision: 2026-10-02-83df44
   syncPolicy:
+    # Keep in lockstep with the ApplicationSet template in root.yaml:
+    # without automated sync a fresh bootstrap never syncs this app.
+    automated:
+      selfHeal: true
+      prune: true
     syncOptions:
     - CreateNamespace=true
     - RespectIgnoreDifferences=true
