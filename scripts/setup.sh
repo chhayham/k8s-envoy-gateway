@@ -137,7 +137,6 @@ echo "Deploying Openunison secret..."
 kubectl create namespace openunison 2>/dev/null || kubectl get namespace openunison
 kubectl apply -f tmp/openunison/resources/manifest.yaml --dry-run=client -o yaml | envsubst | kubectl apply -f -
 
-
 echo ""
 echo "=== Wiring OpenUnison OIDC (in-cluster name resolution + CA) ==="
 # glibc resolves *.localhost to 127.0.0.1 (built-in, before DNS) both inside

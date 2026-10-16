@@ -149,6 +149,24 @@ kubectl -n openunison logs deployment/kube-oidc-proxy-orchestra
 kubectl get httproute -A -o wide
 ```
 
+### `k8sapi.localhost` returns 401 Unauthorized
+
+**Expected behaviour, not a fault.** `kube-oidc-proxy` is an auth gate, not an OIDC provider:
+
+- It validates bearer tokens (from the kubectl command on `/scale/`) against the OpenUnison IdP (`https://k8sou.localhost/auth/idp/k8sIdp`) and forwards the request to the API server as that user.
+- Any *unauthenticated* request — including `GET /`, `/version`, or an OIDC discovery probe at the `k8sapi.localhost` root — is rejected with a plain-text `401 Unauthorized` (the API server's own 403/401 responses are JSON `Status` objects, so a plain-text body means the proxy answered).
+- OIDC discovery for clients is served by the **IdP**, not the API host, and is public:
+
+```bash
+curl -sk https://k8sou.localhost/auth/idp/k8sIdp/.well-known/openid-configuration
+```
+
+- To verify the authenticated path end-to-end, run the kubectl command shown on `/scale/` (requires `sudo minikube tunnel -p demo`):
+
+```bash
+kubectl get pods
+```
+
 ## Troubleshooting
 
 ### ArgoCD app not syncing
