@@ -1,0 +1,12 @@
+# Local-only Terraform variables (this example is committed; the real file
+# 'terraform.auto.tfvars' is git-ignored).
+#
+# Copy this file to 'terraform.auto.tfvars' and fill in your GitHub OAuth
+# App credentials (https://github.com/settings/developers) to enable GitHub
+# SSO for Keycloak. With both values empty, terraform plans fine but does
+# not create the 'github' identity provider.
+#
+# (If you have the legacy git-ignored 'secrets/keycloak-github.yaml' from the
+# old Job-based setup, copy its values here and delete the file.)
+github_client_id     = ""
+github_client_secret = ""

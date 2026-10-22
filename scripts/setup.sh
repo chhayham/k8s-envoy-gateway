@@ -1,107 +1,184 @@
 #!/bin/bash
-# Idempotent script for ArgoCD bootstrap
-# This script deploys ArgoCD and sets up the ApplicationSet
+# Idempotent bootstrap: minikube cluster + Terraform-managed platform + ArgoCD.
+#
+# Terraform workflow (two-phase on fresh clusters — the keycloak provider
+# performs its initial login during the FULL plan, which only works once
+# Keycloak itself has been applied):
+#   1. terraform init
+#   2. base plan/apply of the module chain up to Keycloak
+#      (plan/base.tfplan, -target=module.keycloak; no Keycloak access needed)
+#   3. full plan  -> saved to terraform/plan/terraform.tfplan
+#   4. full apply -> applies the saved plan file
+#
+# Terraform state is stored locally in terraform/state/terraform.tfstate.
+# Module dependency chain: gateway-api < cert-manager < envoy-gateway
+#                          < keycloak < argocd (calico + keda CRDs are
+#                          independent of the chain).
 
-set -e  # Fail fast on errors
+set -euo pipefail  # Fail fast on errors
 
-echo "=== Checking prerequisites ==="
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+TF_DIR="${REPO_ROOT}/terraform"
+TF_STATE_DIR="${TF_DIR}/state"
+TF_PLAN_DIR="${TF_DIR}/plan"
+TF_PLAN_FILE="${TF_PLAN_DIR}/terraform.tfplan"
+MINIKUBE_PROFILE="demo"
+ARGO_NS="argocd"
 
-# Check if podman is available
-if ! command -v podman &> /dev/null; then
-    echo "ERROR: podman is not installed or not in PATH"
-    exit 1
-fi
+log() { echo ""; echo "=== $* ==="; }
+die() { echo "" >&2; echo "ERROR: $*" >&2; exit 1; }
+warn() { echo "WARNING: $*"; }
+
+log "Checking prerequisites"
+
+# Fail fast if any required tool is missing
+for tool in podman kubectl minikube terraform; do
+    if ! command -v "$tool" &> /dev/null; then
+        die "$tool is not installed or not in PATH"
+    fi
+done
 
 echo "✓ podman found: $(podman --version)"
-
-# Check if kubectl is available
-if ! command -v kubectl &> /dev/null; then
-    echo "ERROR: kubectl is not installed or not in PATH"
-    exit 1
-fi
-
-echo "✓ kubectl found: $(kubectl version --client --short 2>/dev/null || echo 'version unknown')"
-
-# Check if minikube is available
-if ! command -v minikube &> /dev/null; then
-    echo "ERROR: minikube is not installed or not in PATH"
-    exit 1
-fi
-
+echo "✓ kubectl found: $(kubectl version --client | grep \"Client\" | awk -F': ' '{print $2}' 2>/dev/null || echo 'version unknown')"
 echo "✓ minikube found: $(minikube version | grep version | head -1)"
+echo "✓ terraform found: $(terraform version | head -1)"
 
-# Check if helm is available
-if ! command -v helm &> /dev/null; then
-    echo "ERROR: helm is not installed or not in PATH"
-    exit 1
-fi
+log "Setting up Minikube Cluster"
 
-echo "✓ helm found: $(helm version --short)"
-
-# Check if minikube cluster exists
+# NOTE: no OpenUnison OIDC extra-config anymore — Keycloak is installed
+# inside the cluster via Terraform (terraform/modules/keycloak) instead.
 MINIKUBE_EXISTS=false
-if minikube status -p demo &> /dev/null; then
+if minikube status -p "$MINIKUBE_PROFILE" &> /dev/null; then
     MINIKUBE_EXISTS=true
 fi
 
-echo ""
-echo "=== Setting up Minikube Cluster ==="
-
 if [ "$MINIKUBE_EXISTS" = "true" ]; then
-    echo "Minikube cluster 'demo' already exists. Starting it..."
-    minikube start -p demo --driver=podman
+    echo "Minikube cluster '$MINIKUBE_PROFILE' already exists. Starting it..."
+    minikube start -p "$MINIKUBE_PROFILE" --cpus=4 --memory=8g --driver podman
 else
-    echo "Creating new Minikube cluster 'demo' with 3 nodes..."
-    minikube start -p demo --driver=podman --nodes=3
+    echo "Creating new Minikube cluster '$MINIKUBE_PROFILE' (2 nodes)..."
+    minikube start -p "$MINIKUBE_PROFILE" --nodes=2 --cpus=4 --memory=8g --driver podman
 fi
 
 echo "✓ Minikube cluster ready"
 
-# Install KEDA CRDs
+log "Checking for legacy (pre-Terraform) bootstrap"
+
+# If this cluster was bootstrapped by the old setup.sh, its ArgoCD-managed
+# releases (argocd/calico/cert-manager/envoy-gateway) will collide with the
+# Terraform-managed ones. Require a clean cluster in that case.
+#
+# Markers unique to the legacy flow:
+#   - the openunison namespace
+#   - the legacy ArgoCD Application objects (calico / cert-manager /
+#     envoy-gateway-system*), which the new ApplicationSet never generates.
+# The argocd helm release is NOT a marker: Terraform installs it too.
+#
+# NOTE: kubectl `get` exits 0 (empty list) even when the namespace does not
+# exist, so existence must be checked on the output, not the exit code.
+LEGACY=false
+if kubectl get ns openunison &> /dev/null; then
+    LEGACY=true
+fi
+if kubectl -n "$ARGO_NS" get applications.argoproj.io calico cert-manager envoy-gateway-system envoy-gateway-system-crds envoy-gateway-system-resources argocd-httproute -o name 2>/dev/null | grep -q .; then
+    LEGACY=true
+fi
+if [ "$LEGACY" = "true" ]; then
+    die "cluster '$MINIKUBE_PROFILE' still carries the legacy (pre-Terraform) bootstrap. Recreate it first: make reset"
+fi
+
+log "Terraform: init"
+
+mkdir -p "$TF_STATE_DIR" "$TF_PLAN_DIR"
+cd "$TF_DIR"
+terraform init -input=false
+
+log "Terraform: base plan (module chain up to Keycloak)"
+
+# A FRESH cluster bootstraps in two phases. The keycloak Terraform provider
+# (terraform/keycloak-sso.tf) performs its initial login during `terraform
+# plan`, but it reaches Keycloak through a localhost port-forward — and the
+# keycloak service only exists AFTER the keycloak module has been applied.
+# Phase 1 therefore plans/applies only the module chain up to Keycloak
+# (-target=module.keycloak includes its dependencies); the keycloak provider
+# resources are pruned from that plan, so no login is attempted and no
+# port-forward is needed. (make tf-base-plan / make tf-base-apply is the
+# manual equivalent.)
+terraform plan -input=false -target=module.keycloak -out="${TF_PLAN_DIR}/base.tfplan"
+
+log "Terraform: base apply (plan/base.tfplan)"
+
+terraform apply -input=false "${TF_PLAN_DIR}/base.tfplan"
+
+log "Starting Keycloak port-forward (keycloak Terraform provider)"
+
+# Keycloak is now up (the module waits for readiness). The full plan/apply
+# below provisions the SSO objects (argocd OIDC client, 'groups' scope,
+# GitHub identity provider, ArgoCDAdmins group) with the keycloak Terraform
+# provider, which logs in through this port-forward. Stopped on exit.
+bash "${REPO_ROOT}/scripts/keycloak-port-forward.sh" start
+trap 'bash "${REPO_ROOT}/scripts/keycloak-port-forward.sh" stop || true' EXIT
+
+log "Terraform: plan (saved to plan/terraform.tfplan)"
+
+# The plan is written to a file so `terraform apply` can execute exactly
+# this plan (see make tf-plan / make tf-apply for the manual workflow).
+terraform plan -input=false -out="$TF_PLAN_FILE"
+
+log "Terraform: apply (plan/terraform.tfplan)"
+
+terraform apply -input=false "$TF_PLAN_FILE"
+
+echo "✓ Terraform apply complete"
+
+log "Setting up ApplicationSet"
+
+# The ApplicationSet(s) generate the remaining ArgoCD-managed apps
+# (argo-rollouts, fluent-bit, kargo, keda, kube-prometheus-stack, loki,
+# http-routes). cert-manager/envoy-gateway/argocd/keycloak are now
+# Terraform-managed and no longer live under deploy/argocd-applications/.
+kubectl apply -f "${REPO_ROOT}/deploy/argocd-applicationsets/root.yaml"
+
+log "Enable gateway traffic (sudo minikube tunnel)"
+
+# The Envoy Gateway service is a LoadBalancer without an LB controller on
+# minikube; 'sudo minikube tunnel' bridges its NodePort to localhost so the
+# *.localhost routes work from the browser/curl. It needs sudo and runs in a
+# separate terminal, so prompt the user now and let them start it while the
+# ArgoCD status check below runs. The kubectl checks themselves do not need
+# the tunnel; only browser/curl verification of the routes does.
+# Non-interactive runs (CI, nohup, piped stdin) are skipped — the final
+# banner still prints the command.
 echo ""
-echo "=== Deploying KEDA CRDs ==="
-kubectl apply --server-side -f https://github.com/kedacore/keda/releases/download/v2.21.0/keda-2.21.0-crds.yaml?raw=true
-
+echo "Before verifying the routes, run this in ANOTHER terminal:"
 echo ""
-echo "=== Deploying ArgoCD ==="
-# Deploy ArgoCD using Helm
-ARGO_NS="argocd"
-echo "Deploying ArgoCD via Helm..."
-helm repo add argo https://argoproj.github.io/argo-helm 2>/dev/null || true
-helm upgrade --install argocd argo/argo-cd \
-    --version 10.9.2 \
-    --namespace "$ARGO_NS" \
-    --create-namespace \
-    -f deploy/argocd/values.yaml \
-    --wait
-
-echo "✓ ArgoCD deployed"
-
+echo "    sudo minikube tunnel -p ${MINIKUBE_PROFILE}"
 echo ""
-echo "=== Setting up ApplicationSet ==="
-
-# Check if ApplicationSet exists and decide whether to edit or apply
-if kubectl get applicationsets.argoproj.io cluster-addons -n "$ARGO_NS" --no-headers &> /dev/null; then
-    echo "ApplicationSet 'cluster-addons' already exists in namespace '$ARGO_NS'"
+echo "Then you can check the gateway routes, e.g.:"
+echo "    http://argocd.localhost     http://keycloak.localhost"
+echo "    http://grafana.localhost    http://rollouts.localhost"
+echo ""
+if [ -t 0 ]; then
+    read -r -p "Press ENTER once the tunnel is running (ENTER also skips): " _ || warn "no input available, continuing"
 else
-    echo "ApplicationSet 'cluster-addons' not found - creating from manifest..."
-    kubectl apply -f deploy/argocd-applicationsets/root.yaml
+    warn "non-interactive run: start 'sudo minikube tunnel -p ${MINIKUBE_PROFILE}' manually to enable gateway traffic"
 fi
 
 # Wait for ArgoCD components to be ready
 echo "Checking ArgoCD pod status..."
-kubectl -n "$ARGO_NS" wait --for=condition=Ready pods --timeout=120s --all 2>/dev/null || echo "Warning: Some pods may not be ready yet"
+kubectl -n "$ARGO_NS" wait --for=condition=Ready pods --timeout=300s --all 2>/dev/null || warn "Some pods may not be ready yet"
 
 echo ""
 echo "ApplicationSet status:"
-kubectl get applicationsets.argoproj.io cluster-addons -n "$ARGO_NS" -o wide
+kubectl get applicationsets.argoproj.io -n "$ARGO_NS" -o wide
 
 echo ""
-echo "=== Setup Complete ==="
+log "Setup Complete"
+echo "Terraform state: ${TF_STATE_DIR}/terraform.tfstate"
+echo "Terraform plan:  ${TF_PLAN_FILE}"
 echo "ArgoCD is running in namespace '$ARGO_NS'"
 echo "ApplicationSet 'cluster-addons' has been configured"
 echo ""
-echo "Access the ArgoCD dashboard at: http://argocd.localhost"
-echo "Username: admin"
-echo "Password: admin" 
-echo "run 'sudo minikube tunnel -p demo' to enable traffic to envoy-gateway"
+echo "Access the ArgoCD dashboard at:  http://argocd.localhost   (admin/admin)"
+echo "Access the Keycloak console at:  http://keycloak.localhost (admin/admin)"
+echo "run 'sudo minikube tunnel -p demo' to enable traffic to the Envoy Gateway"
