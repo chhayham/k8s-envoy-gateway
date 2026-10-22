@@ -30,3 +30,20 @@ temp/
 
 # Cline/AI prompts
 .clinerules
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+terraform/state/
+terraform/plan/
+# Local-only terraform variables (GitHub OAuth credentials), see
+# terraform/terraform.auto.tfvars.example
+terraform/terraform.auto.tfvars
+
+# Local-only cluster secrets (repo is public — never commit)
+secrets/
+
+

@@ -1,0 +1,85 @@
+configs:
+  secret:
+    argocdServerAdminPassword: $2a$10$5vm8wXaSdbuff0m9l21JdevzXBzJFPCi8sy6OOnpZMAG.fOXL7jvO
+
+  params:
+    server.insecure: true  # HTTPS backend
+
+  clusterCredentials:
+    in-cluster:
+      server: https://kubernetes.default.svc
+      annotations:
+        metadata.demo.io/ghapp-client-secret: ''
+      config:
+        tlsClientConfig:
+          insecure: false
+
+  # ArgoCD native OIDC login via Keycloak (no dex, PKCE). The Keycloak side
+  # (public client 'argocd', 'groups' client scope, 'ArgoCDAdmins' group) is
+  # provisioned idempotently by the keycloak-github-idp Job.
+  cm:
+    # overrides the chart's 'https://' preset - the demo is served over
+    # plain HTTP (also used as the base for the OIDC redirect URI)
+    url: http://argocd.localhost
+    oidc.config: |
+      name: Keycloak
+      # Browser-reachable URL (served through the Envoy Gateway tunnel).
+      # The argocd-server pod cannot resolve that host name, so the module
+      # injects a hostAlias mapping it to the Keycloak service ClusterIP.
+      issuer: http://keycloak.localhost/realms/master
+      clientID: argocd
+      # NOTE: 3.x has no 'usernameClaim'/'userIDClaim' keys here (they were
+      # removed; the UI display username for SSO logins is derived by
+      # argocd-server itself: 'email' claim, else 'federated_claims.user_id',
+      # else 'sub'). The human-readable username is therefore provided by
+      # Keycloak as the 'email' claim via the 'argocd-username' client scope
+      # (see terraform/keycloak-sso.tf).
+      enablePKCEAuthentication: true
+      refreshTokenThreshold: 2m
+      requestedScopes: ["openid", "profile", "email", "groups", "offline_access"]
+
+  # ArgoCDAdmins (Keycloak group -> 'groups' claim) gets ArgoCD role:admin.
+  rbac:
+    policy.csv: |
+      g, ArgoCDAdmins, role:admin
+
+# Dex stays disabled: ArgoCD 3.x uses its native OIDC client (configs.cm.
+# oidc.config above) for Keycloak login. The local admin user (admin/admin)
+# remains available as a fallback.
+dex:
+  enabled: false
+
+notifications:
+  enabled: false
+
+global:
+  domain: "argocd.localhost"
+
+server:
+  extensions:
+    enabled: true
+    extensionList:
+      - name: argo-rollouts
+        env:
+          - name: EXTENSION_URL
+            value: https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.7/extension.tar
+
+  httproute:
+    # Enable HTTPRoute resource for ArgoCD server (Gateway API)
+    enabled: false # gateway api crds will be installed by envoy gateway deploy.  httproute will be created in separate workflow
+    # Gateway API parentRefs for the HTTPRoute — must reference an existing Gateway
+    parentRefs:
+      - name: envoy-gateway
+        namespace: envoy-gateway-system
+        sectionName: http
+    hostnames:
+      - argocd.localhost
+    rules:
+      - matches:
+          - path:
+              type: PathPrefix
+              value: /
+        backendRefs:
+          - name: argocd-server
+            port: 80
+            namespace: argocd
